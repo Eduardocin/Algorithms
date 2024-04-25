@@ -2,7 +2,7 @@
 using namespace std;
 
 //Mergesort function
-void merge(int* arr, int left, int mid, int right) {
+void merge(int arr[], int left, int mid, int right) {
     // Array temporário
     int temp[right - left + 1];
     int i1 = left, i2 = mid + 1, curr = left;
