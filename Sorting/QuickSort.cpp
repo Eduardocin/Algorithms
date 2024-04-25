@@ -2,12 +2,14 @@
 #include <algorithm>
 
 /*
-reordenar o array com os valores maiores do que o pivo a direita
-e o valore menores a esquerda, alem de retornar o índice do pivo após
-a partição  
+particiona o array com os valores maiores do que o pivo a direita
+e o valores menores a esquerda e retornar o índice do pivo após
+a ser feita a partição.
 */
 int hoarePartition(int arr[], int left, int right) {
+    
     int pivot = arr[left]; // escolhe o pivo como o elemento mais a esquerda do array
+    
     // variaveis auxiliares
     int i = left; // deve incrementar até que encontre um elemente maior do que o pivo
     int j = right + 1; // dev decrementar até que o elemento seja menor do que o pivo
@@ -29,6 +31,7 @@ int hoarePartition(int arr[], int left, int right) {
     
     // desfaz a ultima troca quando i >= j
     std::swap(arr[i], arr[j]);
+    
     // coloca o pivo na sua posição correta
     std::swap(arr[left], arr[j]);
 
