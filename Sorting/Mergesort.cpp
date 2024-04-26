@@ -1,70 +1,71 @@
 #include <iostream>
 using namespace std;
 
-//Mergesort function
-void merge(int arr[], int left, int mid, int right) {
-    // Array temporário
-    int temp[right - left + 1];
-    int i1 = left, i2 = mid + 1, curr = left;
+// Une o fragmentos
+void merge(int Arr[],int SizeArray, int left, int mid, int right) {
+    // Array temporário que recebe os valores do Array original que estão sendo ordenados
+    int temp[SizeArray];
 
-    // Copiar os elementos para temp
+    // Indices para percorrer o Array
+    int i1 = left, i2 = mid + 1;
+
+    // Copiar apenas os elementos  que estão sendo ordenados para temp
     for (int i = left; i <= right; i++) {
-        temp[i - left] = arr[i];
+        temp[i] = Arr[i];
     }
 
-    // Condições para mesclar
-    while (i1 <= mid && i2 <= right) {
-        if (temp[i1 - left] <= temp[i2 - left]) {
-            arr[curr++] = temp[i1 - left];
+    // Varia o curso  e verificar as condições
+    for (int curr = left; curr <= right; curr++) {
+        if(i1 == mid + 1){ // verifica se já foram copiados todos os elementos da primeira parte
+            Arr[curr] = temp[i2];
+            i2 ++;
+        }
+        else if (i2 > right){ // verifica se já foram copiados todos os elementos da segunra parte
+            Arr[curr] = temp[i1];
+            i1 ++;
+        }
+        else if( temp[i1] <= temp[i2]){ // verifica se o elemento da esquerda é menor que o da direita
+            Arr[curr] = temp[i1];
             i1++;
-        } else {
-            arr[curr++] = temp[i2 - left];
-            i2++;
+        }
+        else{Arr[curr] = temp[i2]; 
+        i2++;
         }
     }
-
-    // Copiar os elementos restantes de i1
-    while (i1 <= mid) {
-        arr[curr++] = temp[i1 - left];
-        i1++;
     }
 
-    // Copiar os elementos restantes de i2
-    while (i2 <= right) {
-        arr[curr++] = temp[i2 - left];
-        i2++;
-    }
-}
+/*
+Divide o problema da  ordenação do Array inicial em ordenar subArrays cara vez menores até que o Array tenha somente um elemento
+que, por definição, está ordenado.
+*/
 
-
-void MergeSort(int* arr, int left, int right) {
-    
+void MergeSort(int Arr[],int SizeArr, int left, int right) {
+    // testa se o Array é unitário
     if (left < right) {
-        // Encontrar o ponto médio
+        // Encontrar o meio do Array
         int mid = (left + right) / 2;
+        // Chamadas recusivas para os intervalos até o meio do Array e depois dele
+        MergeSort(Arr, SizeArr, left, mid);
+        MergeSort(Arr, SizeArr, mid + 1, right);
 
-        // Ordenar a primeira e a segunda metades
-        MergeSort(arr, left, mid);
-        MergeSort(arr, mid + 1, right);
-
-        // fundir as metades ordenadas
-        merge(arr, left, mid, right);
+        //processo de conquista
+        merge(Arr, SizeArr, left, mid, right);
     }
 }
 
 
 
 int main(){
-    // define a array para testar o merge sort
-    int array[6] = {1,6,3,7,12,8};
 
-    int len_array = sizeof(array) / sizeof(array[0]);
+    int Array[] = {5, 2, 1, 7, 0};
 
-    MergeSort(array, 0, len_array-1);
+    int SizeArray = sizeof(Array) / sizeof(Array[0]);
+
+    MergeSort(Array, SizeArray, 0, SizeArray-1);
 
     
-    // printa o array ordenado
-    for(int n : array){
+    // printa o Array ordenado
+    for(int n : Array){
         cout << n << " ";
     }
 
