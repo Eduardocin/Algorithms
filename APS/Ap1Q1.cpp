@@ -37,11 +37,12 @@ void MergeSort(int Arr[],int SizeArr, int left, int right) {
 }
 
 int main(){
-    int cases, SizeArray, elements;
+    int cases, SizeArray;
 
     cin >> cases;
     for (int i = 0; i < cases; i++) {
         cin >> SizeArray;
+        
         int Arr[SizeArray];
         
         for (int j = 0; j < SizeArray; j++) {
