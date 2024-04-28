@@ -1,8 +1,7 @@
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-#include <iostream>
-#include <algorithm>
 
 int hoarePartition(int Arr[], int left, int right) {
     int pivot = Arr[left];
@@ -12,18 +11,18 @@ int hoarePartition(int Arr[], int left, int right) {
     do {
         do {
             i++;
-        } while ((Arr[i] < pivot) && (i <= right));
+        } while ((Arr[i] < pivot) && (i < right));
 
         do {
             j--;
         } while (Arr[j] > pivot);
 
-        std::swap(Arr[i], Arr[j]);
+        swap(Arr[i], Arr[j]);
 
     } while (!(i >= j));
 
-    std::swap(Arr[i], Arr[j]);
-    std::swap(Arr[left], Arr[j]);
+    swap(Arr[i], Arr[j]);
+    swap(Arr[left], Arr[j]);
 
     return j;
 }

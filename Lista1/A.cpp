@@ -1,35 +1,36 @@
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-void merge(int Arr[], int SizeArray, int left, int mid, int right) {
-    int temp[SizeArray];
-    int i1 = left, i2 = mid + 1;
-    for (int i = left; i <= right; i++) {
-        temp[i] = Arr[i];
-    }
-    for (int curr = left; curr <= right; curr++) {
-        if (i1 == mid + 1) {
-            Arr[curr] = temp[i2];
-            i2++;
-        } else if (i2 > right) {
-            Arr[curr] = temp[i1];
-            i1++;
-        } else if (temp[i1] <= temp[i2]) {
-            Arr[curr] = temp[i1];
-            i1++;
-        } else {
-            Arr[curr] = temp[i2];
-            i2++;
-        }
-    }
+int hoarePartition(int Arr[], int left, int right) {
+    int pivot = Arr[left];
+    int i = left;
+    int j = right + 1;
+
+    do {
+        do {
+            i++;
+        } while ((Arr[i] < pivot) && (i <= right));
+
+        do {
+            j--;
+        } while (Arr[j] > pivot);
+
+        swap(Arr[i], Arr[j]);
+
+    } while (!(i >= j));
+
+    swap(Arr[i], Arr[j]);
+    swap(Arr[left], Arr[j]);
+
+    return j;
 }
 
-void MergeSort(int Arr[], int SizeArr, int left, int right) {
+void QuickSort(int Arr[], int left, int right) {
     if (left < right) {
-        int mid = (left + right) / 2;
-        MergeSort(Arr, SizeArr, left, mid);
-        MergeSort(Arr, SizeArr, mid + 1, right);
-        merge(Arr, SizeArr, left, mid, right);
+        int partitionIndex = hoarePartition(Arr, left, right);
+        QuickSort(Arr, left, partitionIndex - 1);
+        QuickSort(Arr, partitionIndex + 1, right);
     }
 }
 
@@ -50,7 +51,7 @@ int main() {
         cin >> arr2[i];
     }
 
-    MergeSort(arr1, NumChoco, 0, NumChoco - 1);
+    QuickSort(arr1, 0, NumChoco - 1);
 
     for (int j = 0; j < NumChoco; j++) {
         total += arr1[j];
