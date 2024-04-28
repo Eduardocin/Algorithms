@@ -52,12 +52,12 @@ void QuickSort(int Arr[], int left, int right) {
 }
 
 int main() {
-
-    int numCasos, tamArray;
-
+    int Arr[] = {4 3 1 5 2};
+    int SizeArr = sizeof(Arr) / sizeof(Arr[0]);
 
     // (Array, LimiteEsquerdo, LimiteDireito)
     QuickSort(Arr, 0, SizeArr - 1);
+
 
     std::cout << "Sorted array: ";
     for (int n : Arr) {
