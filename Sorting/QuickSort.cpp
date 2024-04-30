@@ -9,7 +9,7 @@ int hoarePartition(int Arr[], int left, int right) {
     do {
         do {
             i++;
-        } while ((Arr[i] < pivot) && (i <= right));
+        } while ((Arr[i] < pivot) && (i < right));
 
         do {
             j--;
