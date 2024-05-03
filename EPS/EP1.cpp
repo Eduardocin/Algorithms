@@ -4,47 +4,48 @@
 
 using namespace std;
 
-// Definição da estrutura Candidato
 struct Candidato {
     string nome;
     int nota;
     int idade;
+    int ordem;
 };
 
-// Função de particionamento de Hoare
-int HoarePartition(int Array[], Candidato Array2[], int left, int right) {
-    int pivot = Array[left];
-    int i = left, j = right + 1;
-
-    do {
-        do {
-            i++;
-        } while ((Array[i] > pivot) && (i < right));
-        do {
-            j--;
-        } while (Array[j] < pivot);
-
-        if (i < j) {
-            swap(Array[i], Array[j]);
-            swap(Array2[i], Array2[j]);
+void merge(Candidato Arr[], int SizeArray, int left, int mid, int right) {
+    Candidato temp[SizeArray];
+    int i1 = left, i2 = mid + 1;
+    for (int i = left; i <= right; i++) {
+        temp[i] = Arr[i];
+    }
+    for (int curr = left; curr <= right; curr++) {
+        if (i1 == mid + 1) {
+            Arr[curr] = temp[i2];
+            i2++;
+        } else if (i2 > right) {
+            Arr[curr] = temp[i1];
+            i1++;
+        } else if (temp[i1].nota < temp[i2].nota ||
+                   (temp[i1].nota == temp[i2].nota && temp[i1].idade < temp[i2].idade) ||
+                   (temp[i1].nota == temp[i2].nota && temp[i1].idade == temp[i2].idade && temp[i1].ordem > temp[i2].ordem)) {
+            Arr[curr] = temp[i1];
+            i1++;
+        } else {
+            Arr[curr] = temp[i2];
+            i2++;
         }
-
-    } while (i < j);
-
-    swap(Array[left], Array[j]);
-    swap(Array2[left], Array2[j]);
-
-    return j;
-}
-
-// Função Quicksort
-void Quicksort(int Array[], Candidato Array2[], int left, int right) {
-    if (left < right) {
-        int s = HoarePartition(Array, Array2, left, right);
-        Quicksort(Array, Array2, left, s - 1);
-        Quicksort(Array, Array2, s + 1, right);
     }
 }
+
+
+void MergeSort(Candidato Arr[],int SizeArr, int left, int right) {
+    if (left < right) {
+        int mid = (left + right) / 2;
+        MergeSort(Arr, SizeArr, left, mid);
+        MergeSort(Arr, SizeArr, mid + 1, right);
+        merge(Arr, SizeArr, left, mid, right);
+    }
+}
+
 
 int main() {
     int numCargos;
@@ -56,28 +57,38 @@ int main() {
 
         Candidato candidatos[numInscritos];
 
-        // Ler os candidatos e suas informações
+        // infos dos candidatos
         for (int j = 0; j < numInscritos; j++) {
             cin >> candidatos[j].nome >> candidatos[j].nota >> candidatos[j].idade;
+            candidatos[j].ordem = j + 1;
         }
 
-        // Ordenar os candidatos por nota, idade e ordem de inscrição
-        int notas[numInscritos];
-        for (int j = 0; j < numInscritos; j++) {
-            notas[j] = candidatos[j].nota;
-        }
-        Quicksort(notas, candidatos, 0, numInscritos - 1);
+        // ordenar
+        MergeSort(candidatos, numInscritos, 0, numInscritos - 1);
 
-        cout << "Cargo " << i + 1 << ":" << endl;
+        cout << "cargo " << i + 1 << ":" << endl;
 
-        // Imprimir os candidatos classificados
-        for (int j = 0; j < min(numInscritos, numVagas); j++) {
-            cout << candidatos[j].nome << endl;
+        // imprimir os vencedores
+        int vagasPreenchidas = 0;
+        while(vagasPreenchidas < numVagas){
+            if(numInscritos > numVagas){
+            cout << candidatos[numInscritos - 1 - vagasPreenchidas].nome << endl;
+            vagasPreenchidas++;
+            }else{
+                if(vagasPreenchidas < numInscritos){
+                cout << candidatos[numInscritos - 1 - vagasPreenchidas].nome << endl;
+                vagasPreenchidas++;}
+                else{
+                    cout << "x" << endl;
+                    vagasPreenchidas++;
+                }
+            }
         }
-        for (int j = min(numInscritos, numVagas); j < numVagas; j++) {
-            cout << "x" << endl;
-        }
+
     }
-
+    
+    
     return 0;
 }
+
+
