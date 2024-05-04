@@ -50,12 +50,13 @@ int main(){
         }
         
         MergeSort(Arr, SizeArray, 0, SizeArray - 1);
-
-        for (int j = 0 ; j < SizeArray ; j--) {
+        
+        cout << endl;
+        for (int j = 0 ; j < SizeArray ; j++) {
             cout << Arr[j] << " ";
         }
         cout << endl;
-    }
+    }   
 
     return 0;
 }
