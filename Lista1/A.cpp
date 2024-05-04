@@ -2,17 +2,28 @@
 #include <algorithm>
 using namespace std;
 
+<<<<<<< HEAD
 #define ll long long 
 
 int hoarePartition(ll int Arr[], int left, int right) {
     ll int pivot = Arr[left];
     ll int i = left;
     ll int j = right + 1;
+=======
+int hoarePartition(int Arr[], int left, int right) {
+    int pivot = Arr[left];
+    int i = left;
+    int j = right + 1;
+>>>>>>> b2a4f16fb26c36e0010d120a45fd69939d17477c
 
     do {
         do {
             i++;
+<<<<<<< HEAD
         } while ((Arr[i] < pivot) && (i < right));
+=======
+        } while ((Arr[i] < pivot) && (i <= right));
+>>>>>>> b2a4f16fb26c36e0010d120a45fd69939d17477c
 
         do {
             j--;
@@ -26,6 +37,7 @@ int hoarePartition(ll int Arr[], int left, int right) {
     swap(Arr[left], Arr[j]);
 
     return j;
+<<<<<<< HEAD
 }
 
 
@@ -37,6 +49,17 @@ void QuickSort(ll int Arr[], ll int left, ll int right) {
     }
 }
 
+=======
+}
+
+void QuickSort(int Arr[], int left, int right) {
+    if (left < right) {
+        int partitionIndex = hoarePartition(Arr, left, right);
+        QuickSort(Arr, left, partitionIndex - 1);
+        QuickSort(Arr, partitionIndex + 1, right);
+    }
+}
+>>>>>>> b2a4f16fb26c36e0010d120a45fd69939d17477c
 
 int main() {
 
@@ -55,7 +78,11 @@ int main() {
         cin >> ChocoCupons[i];
     }
 
+<<<<<<< HEAD
     QuickSort(ChocoPrice, 0, NumChoco - 1);
+=======
+    QuickSort(arr1, 0, NumChoco - 1);
+>>>>>>> b2a4f16fb26c36e0010d120a45fd69939d17477c
 
     for (ll int j = 0; j < NumChoco; j++) {// calcula o valor total dos chocolates
         total += ChocoPrice[j];

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+using namespace std;
 
 int hoarePartition(int Arr[], int left, int right) {
     int pivot = Arr[left];
@@ -15,12 +16,12 @@ int hoarePartition(int Arr[], int left, int right) {
             j--;
         } while (Arr[j] > pivot);
 
-        std::swap(Arr[i], Arr[j]);
+        swap(Arr[i], Arr[j]);
 
-    } while (!(i >= j));
+    } while (i < j);
 
-    std::swap(Arr[i], Arr[j]);
-    std::swap(Arr[left], Arr[j]);
+    swap(Arr[i], Arr[j]);
+    swap(Arr[left], Arr[j]);
 
     return j;
 }
@@ -39,11 +40,11 @@ int main() {
 
     QuickSort(Arr, 0, SizeArr - 1);
 
-    std::cout << "Sorted array: ";
+    cout << "Sorted array: ";
     for (int n : Arr) {
-        std::cout << n << " ";
+        cout << n << " ";
     }
-    std::cout << std::endl;
+    cout << endl;
 
     return 0;
 }
