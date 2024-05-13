@@ -27,12 +27,11 @@ struct List {
         if (curr < listSize) {
             curr++;
     }
+    }
 
     void insert(E it) {
         if (listSize >= maxSize) {
-            // Tratar erro, por exemplo, lançar uma exceção
-            // throw std::runtime_error("List is full");
-            return;
+            return length_error();
         }
         
         int i = listSize;
@@ -45,10 +44,13 @@ struct List {
         listSize++;
     }
 
+    void clear(){
+        delete[] listArray;
+    }
 
     void remove(E it) {
         if (curr < 0 || curr >= listSize) {
-            return;
+            return NULL;
         }
         else{
             it = listArray[curr];
@@ -61,9 +63,7 @@ struct List {
             }
             listSize--;
             }
-        }
-    
-    
+        }    
 };
     
 
