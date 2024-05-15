@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept> // Para lançar uma exceção em caso de lista vazia
 
 // Definição da estrutura para um nó da lista usando template
 template<typename E>
@@ -6,7 +7,10 @@ struct Node {
     E data; // value store in this node
     Node* next; // reference to next node
 
-    Node(E data) : data(data), next(nullptr) {}
+    // Construtor
+    Node(const E& data = 0, Node* nextNode = nullptr) : data(data), next(nextNode) {
+        
+    }
 };
 
 // Definição da estrutura para a lista ligada usando template
@@ -15,68 +19,42 @@ struct LinkedList {
     Node<E>* head;
     Node<E>* tail;
     Node<E>* curr;
-    int count;
+    int listSize;
 
     // Construtor
-    LinkedList() : head(nullptr), tail(nullptr), curr(nullptr), count(0) {}
+    LinkedList() : listSize(0) {
+        head = tail = curr = new Node<E>(); // Criar o nó header
+    }
 
     // Método para inserir um novo elemento na lista
-    void insert(E data) {
+    void insert(const E& data) {
         Node<E>* newNode = new Node<E>(data);
-        if (tail != curr) {
-            tail->next = newNode;
-        }
+        tail->next = newNode;
         tail = newNode;
-        if (head == nullptr) {
-            head = newNode;
-        }
-        count++;
+        listSize++;
     }
 
     // Método para remover um elemento da lista
-    bool remove() {
+    E remove() {
         if (curr->next == nullptr) {
-            return NULL;
+            throw std::runtime_error("Tentativa de remover de uma lista vazia.");
         }
         Node<E>* removeNode = curr->next;
+        E removedData = removeNode->data;
         curr->next = removeNode->next;
         if (curr->next == tail) {
             tail = curr;
         }
         delete removeNode;
-        count--;
-        return  ;
+        listSize--;
+        return removedData;
     }
 
-    // Método para mover o cursor para o início da lista
-    void moveToStart() {
-        curr = head;
-    }
-
-    // Método para mover o cursor para o final da lista
-    void prev() {
-        if (curr == head ){ 
-            Node *temp = head;
-            while (temp->next!= curr) {
-                temp = temp->next;
-            }
-            curr = temp;
-            }
-    }
-
-    // Método para mover o cursor para o próximo nó
-    void next() {
-        if (curr != tail ) { curr = curr->next; }
-    }
-
-    // Método para obter o tamanho da lista
-    int length() const {
-        return count;
-    }
+    // Métodos restantes...
 
     // Método para imprimir todos os elementos da lista
     void print() const {
-        Node<E>* temp = head;
+        Node<E>* temp = head->next; // Começar a partir do primeiro elemento, não do nó cabeçalho
         while (temp != nullptr) {
             std::cout << temp->data << " ";
             temp = temp->next;
@@ -86,7 +64,7 @@ struct LinkedList {
 };
 
 int main() {
-    // Instanciando uma lista ligada para inteiros
+    // Criando uma nova lista ligada de inteiros
     LinkedList<int> intList;
 
     // Inserir elementos na lista
@@ -97,16 +75,12 @@ int main() {
     // Imprimir elementos da lista
     intList.print(); // Saída: 10 20 30
 
-    // Instanciando uma lista ligada para strings
-    LinkedList<std::string> stringList;
+    // Remover um elemento da lista e imprimir o valor removido
+    int removedValue = intList.remove();
+    std::cout << "Valor removido: " << removedValue << std::endl;
 
-    // Inserir elementos na lista
-    stringList.insert("Copilot");
-    stringList.insert("é");
-    stringList.insert("incrível!");
-
-    // Imprimir elementos da lista
-    stringList.print(); // Saída: Copilot é incrível!
+    // Imprimir elementos da lista após a remoção
+    intList.print(); // Saída: 20 30
 
     return 0;
 }
