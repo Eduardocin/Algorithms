@@ -33,11 +33,10 @@ struct LinkedList {
 
     void insert(E value) {
         Node<E> *newNode = new Node<E>(value, curr->next);
-        curr->next = newNode;
-        if (tail->next == curr) {
+        curr->next = newNode; // point to the next node value.
+        if (tail == curr) {
             tail = curr->next;
-        }
-        curr = curr->next; // Move "curr" to the newly inserted node.
+        }    
         sizeList++;
     }
 
@@ -45,23 +44,46 @@ struct LinkedList {
         
         if (curr->next == nullptr) { return nullptr; }
         
-        E it = curr->next->data;
-        if (tail == curr->next) { tail = curr;}
-        curr->next =  curr->next->next;
+        E it = curr->next->data; // value to remove
+        
+        if (tail == curr->next) { tail = curr;} //verify that we removed the last element
+
+        Node<E> *temp = curr->next; // create a pointer to the element that we are removing
+        
+        curr->next =  curr->next->next; // remove the element
         sizeList--;
+        
         // make memory deallocation
-        delete curr->next;
-        curr->next = nullptr;
+        delete temp;
+        temp = nullptr;
         //return value removed
         return it;
     }
 
+void clear(){
+    Node<E> *temp = head->next;
+    while (temp!= nullptr) {
+        Node<E> *temp2 = temp->next;
+        delete temp;
+        temp = temp2;
+    }
+    head = tail = curr = new Node<E>();
+    sizeList = 0;
+}
+
+    int length(){
+        return sizeList;
+    }
+
+    E getValue(){
+        return curr->data;
+    }
 
     void moveToStart(){
         curr = head;
     }
     void prev(){
-        if (curr == head) throw std::error_condition("");
+        if (curr == head) throw std::error_condition(" ");
 
         Node<E> *temp = head;
         while (temp->next!= curr) {
@@ -89,9 +111,10 @@ struct LinkedList {
 int main() {
     LinkedList<int> list;
     list.insert(1);
+    list.next();
     list.insert(2);
     list.print(); // Print the list.
-    cout << "Size of list: " << list.sizeList << endl;
+    cout << "Size of list: " << list.length() << endl;
 
     return 0;
 }
