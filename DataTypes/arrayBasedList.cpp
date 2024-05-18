@@ -1,100 +1,103 @@
 #include <iostream>
-
+#include <stdexcept>
 using namespace std;
 
-template<typename E>
-struct List {
-    int maxSize;
-    int listSize;
+template <typename T>
+struct ArrayList{
+private:
+    int max_size;
+    int size;
     int curr;
-    E* listArray;
+    T* array;
 
-    void moveToStart(){
-        curr = 0;
-    }
-
-    void moveToEnd() {
-        curr = listSize - 1;
-    }
-
-    void prev(){
-        if (curr != 0){
-            curr--;
-        }    
-    }
-    
-    void next() {
-        if (curr < listSize) {
-            curr++;
-    }
+public:
+    /**
+     * Constructor to initialize the ArrayList with a specified size.
+     * param tamanho The maximum size of the ArrayList.
+     */
+    ArrayList(int tamanho){
+        max_size = tamanho;
+        size = curr = 0;
+        array = new T[max_size];
     }
 
-    void insert(E it) {
-        if (listSize >= maxSize) {
-            return length_error();
-        }
-        
-        int i = listSize;
-        while (i > curr) {
-            listArray[i] = listArray[i - 1]; // shift right
+    /**
+     * Inserts a value at the current position in the ArrayList.
+     * param value The value to be inserted.
+     * throws std::overflow_error if the ArrayList is full.
+     */
+    void insert(T value ){
+        if(size >= max_size){throw std::overflow_error("ArrayList is full");}
+        int i = size;
+        while(i > curr){
+            array[i] = array[i - 1];
             i--;
         }
-        
-        listArray[curr] = it; // insert at curr position
-        listSize++;
+        array[curr] = value;
+        size++;
     }
 
-    void clear(){
-        delete[] listArray;
+    /**
+     * Moves the current position to the next element in the ArrayList.
+     */
+    void next(){
+        if(curr < size) { curr++;}
+    }
+    
+    /**
+     * Moves the current position to the previous element in the ArrayList.
+     */
+    void prev(){
+        if(curr > 0) { curr--;}
     }
 
-    void remove(E it) {
-        if (curr < 0 || curr >= listSize) {
-            return NULL;
+    /**
+     * Counts the occurrences of a value in the ArrayList.
+     * param value The value to be counted.
+     * return The number of occurrences of the value.
+     */
+    int count(T value){
+        int count = 0;
+        for(int i = 0; i < size; i++){
+            if(array[i] == value){
+                count++;
+            }
         }
-        else{
-            it = listArray[curr];
-            int i = curr; 
-            
-            while(i < listSize -1 )
-            {
-            listArray[i] = listArray[i+1];
-            i++;
-            }
-            listSize--;
-            }
-        }    
-};
-    
-
-template<typename E>
-List<E>* create_list(int size) {
-    List<E>* l = new List<E>;
-    l->maxSize = size;
-    l->listSize = l->curr = 0;
-    l->listArray = new E[size];
-    return l;
-}
-
-
-int main(){
-    
-    List<int>* r = create_list<int>(5);
-    r->insert(2);
-    r->insert(3);1
-    r->insert(4);
-
-    r->remove(2); // remove based on index 
-
-    
-    // Exemplo de uso: imprimindo os valores da lista
-    cout << "Valores da lista:" << endl;
-    for (int i = 0; i < r->listSize; i++) {
-        cout << r->listArray[i] << endl;
+        return count;
     }
-    
-    delete[] r->listArray;
-    delete r;
-    
+
+    /**
+     * Removes the element at the current position in the ArrayList.
+     * return The removed element.
+     * throws std::out_of_range if the current position is out of range.
+     */
+    T remove(){
+        if ((curr < 0) || ( curr >= size)){throw std::out_of_range("Current position is out of range");}
+        int i = curr;
+        T it = array[curr];
+        while(i < size - 1){
+            array[i] = array[i + 1];
+            i++;
+        }
+        size--;
+        return it;
+    }
+};
+
+/**
+ * Main function to demonstrate the usage of ArrayList.
+ * return Exit status of the program.
+ */
+
+int main() {
+    ArrayList<int> r(10);
+    r.insert(2);
+    r.insert(3);
+    r.insert(4);
+
+    r.remove(); // remove based on current position
+
+    cout << r.count(2) << endl; // count based on current position
+
     return 0;
 }

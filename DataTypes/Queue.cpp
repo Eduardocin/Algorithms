@@ -14,11 +14,12 @@ struct Node{
 
 template<typename T>
 struct Queue{
+private: //encapsulate the internal state
     Node<T> *head;
     Node<T> *tail;
     int size;
 
-
+public:
     Queue(): head(new Node<T>()), tail(head), size(0) {}//create a header node empty
 
     void enqueue(T value){
@@ -38,6 +39,21 @@ struct Queue{
         delete temp;
         return value;
     }
+
+    void clear(){
+        while(size > 0){
+            dequeue();
+        }
+    }
+    
+    E frontValue(){
+        return head->next->data;
+    }
+
+    int length(){
+        return size;
+    }
+
 };
 
 
