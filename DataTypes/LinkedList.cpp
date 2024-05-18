@@ -83,7 +83,7 @@ void clear(){
         curr = head;
     }
     void prev(){
-        if (curr == head) throw std::error_condition(" ");
+        if (curr == head) throw std::runtime_error(" ");
 
         Node<E> *temp = head;
         while (temp->next!= curr) {

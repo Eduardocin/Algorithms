@@ -1,88 +1,49 @@
 #include <iostream>
+#include <stdexcept>
 
-template <typename T>
-class Node {
-public:
-    T value;
-    Node* next;
+using namespace std;
 
-    Node(T val) : value(val), next(nullptr) {}
+template<typename T>
+struct Node{
+    T data;
+    Node<T> *next;
+
+    Node(): next(nullptr) {}
+    Node(T data): data(data), next(nullptr) {}
 };
 
-template <typename T>
-class Queue {
-private:
-    Node<T>* front;
-    Node<T>* rear;
-    int length;
+template<typename T>
+struct Queue{
+    Node<T> *head;
+    Node<T> *tail;
+    int size;
 
-public:
-    Queue() : front(nullptr), rear(nullptr), length(0) {}
 
-    ~Queue() {
-        clear();
+    Queue(): head(new Node<T>()), tail(head), size(0) {}//create a header node empty
+
+    void enqueue(T value){
+        Node<T> *newNode = new Node<T>(value);
+        tail->next = newNode;
+        tail = tail->next;
+        size++;
     }
 
-    void clear() {
-        while (!isEmpty()) {
-            dequeue();
-        }
-    }
-
-    void enqueue(T value) {
-        Node<T>* newNode = new Node<T>(value);
-        if (isEmpty()) {
-            front = rear = newNode;
-        } else {
-            rear->next = newNode;
-            rear = newNode;
-        }
-        length++;
-    }
-
-    T dequeue() {
-        if (isEmpty()) {
-            throw std::out_of_range("Queue is empty");
-        }
-        Node<T>* temp = front;
-        T value = front->value;
-        front = front->next;
+    T dequeue(){
+        if(size == 0){throw std::runtime_error("Queue is empty");}
+        T value = head->next->data;
+        Node<T> *temp = front->next;
+        front->next = front->next->next;
+        if(front->next == nullptr){tail = head;}
+        size--;
         delete temp;
-        length--;
-        if (isEmpty()) {
-            rear = nullptr;
-        }
         return value;
     }
-
-    T peek() const {
-        if (isEmpty()) {
-            throw std::out_of_range("Queue is empty");
-        }
-        return front->value;
-    }
-
-    bool isEmpty() const {
-        return length == 0;
-    }
-
-    int size() const {
-        return length;
-    }
 };
 
-int main() {
-    Queue<int> queue;
 
-    queue.enqueue(1);
-    queue.enqueue(2);
-    queue.enqueue(3);
 
-    std::cout << "Front element is: " << queue.peek() << std::endl;
-
-    while (!queue.isEmpty()) {
-        std::cout << "Dequeued: " << queue.dequeue() << std::endl;
-    }
-
+int main()
+{
+    
     return 0;
 }
