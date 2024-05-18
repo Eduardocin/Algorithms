@@ -1,4 +1,5 @@
 #include <iostream>
+#include <exception>
 #include <string>
 using namespace std;
 
@@ -40,9 +41,9 @@ struct LinkedList {
         sizeList++;
     }
 
-    E remove(int index) {
+    E remove() {
         
-        if (curr->next == nullptr) { return nullptr; }
+        if (curr->next == nullptr) { return 0; }
         
         E it = curr->next->data; // value to remove
         
@@ -55,21 +56,20 @@ struct LinkedList {
         
         // make memory deallocation
         delete temp;
-        temp = nullptr;
         //return value removed
         return it;
     }
 
-void clear(){
-    Node<E> *temp = head->next;
-    while (temp!= nullptr) {
-        Node<E> *temp2 = temp->next;
-        delete temp;
-        temp = temp2;
+    void clear(){
+        Node<E> *temp = head->next;
+        while (temp!= nullptr) {
+            Node<E> *temp2 = temp->next;
+            delete temp;
+            temp = temp2;
+        }
+        head = tail = curr = new Node<E>();
+        sizeList = 0;
     }
-    head = tail = curr = new Node<E>();
-    sizeList = 0;
-}
 
     int length(){
         return sizeList;
@@ -82,8 +82,9 @@ void clear(){
     void moveToStart(){
         curr = head;
     }
+    
     void prev(){
-        if (curr == head) throw std::error_condition(" ");
+        if (curr == head) throw std::runtime_error(" ");
 
         Node<E> *temp = head;
         while (temp->next!= curr) {
@@ -106,42 +107,69 @@ void clear(){
         }
         cout << endl;
     }
+
+    int count(E value){
+        int count = 0;
+        Node<E> *temp = head->next; // Start from the first actual node, not the dummy header.
+        while (temp != nullptr) {
+            if(temp->data == value){
+                count++;
+            }
+            temp = temp->next;
+        }
+        return count;
+    }
 };
+
+
 
 int main(){
     int c, n, value;
     string input;
 
-    cin >> c;
+
+    cin >> c; // number of cases
     for(int i = 0; i < c; i++){
-        LinkedList<int> listint;
+        LinkedList<long long int> countlist;//create a list for count
+        LinkedList<long long int> listint;//create a list of integers
         cin >> n;
+        
         for(int j = 0; j < n; j++){
-            while(cin >> input){
+                cin >> input;
                 if (input == "insert"){
                     cin >> value;
                     listint.insert(value);
                 }
                 else if (input == "remove"){
-                    listint.remove()
+                    listint.remove();
                 }
                 else if( input == "count"){
+                    int contagens = 0;
                     cin >> value;
-                    listint.count()
+                    contagens = listint.count(value);
+                    countlist.insert(contagens);
                 }
                 else if(input == "next"){
-                    listint.next()
-                }
-                else if(input == "prev"){
-                    listint.prev()
+                    listint.next();
+                    }
+                else{
+                    listint.prev();
                 }
 
-                }
-            }
 
+                }
+        // saidas apenas para os casos de count
+        cout << "Caso "<< i+1 << ":" << endl;
+        countlist.moveToStart();
+        // move to the end of the countlist
+        for(int k = 0; k < countlist.length(); k++){
+            countlist.next();    
         }
+        // print the values of the countlist
+        for(int k = 0; k < countlist.length(); k++){
+            cout << countlist.getValue() << endl;
+            countlist.prev();
+            }
+        }
+        return 0;
     }
-
-
-    return 0;
-}
