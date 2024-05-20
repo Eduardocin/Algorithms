@@ -7,20 +7,20 @@ struct Node {
     T data; 
     Node *next;
 
-
-    Node() : next(nullptr) {}
-    Node(T value, Node* nextNode) : data(value), next(nextNode) {}
+    Node(T value, Node* nextNode = NULL) : data(value), next(nextNode) {}
 };
 
 
 
 template<typename T>
 struct Stack{
+private:
     Node<T> *top;
     int size;
 
+public:
     //constructor function
-    Stack() : top (nullptr) , size(0){}
+    Stack() : top(NULL) , size(0){}
 
     void push(T it){
         Node<T>* newNode = new Node<T>(it, top);
@@ -31,6 +31,10 @@ struct Stack{
     T topValue(){
         if( top == nullptr ) throw std::runtime_error(" Stack is empty");
         return top->data;
+    }
+
+    int length(){
+        return size;
     }
 
     T pop(){
