@@ -130,9 +130,8 @@ int main(){
 
     cin >> c; // number of cases
     for(int i = 0; i < c; i++){
-        LinkedList<long long int> countlist;//create a list for count
-        LinkedList<long long int> listint;//create a list of integers
-        cin >> n;
+        LinkedList<long long int> countlist;
+        LinkedList<long long int> listint;
         
         for(int j = 0; j < n; j++){
                 cin >> input;

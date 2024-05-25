@@ -63,7 +63,7 @@ public:
 template <typename E>
 struct Stack {
 private:
-    Node<E> *top; // reference to the first element
+    Node<E> *top; 
     int size;
 
 public:
@@ -108,7 +108,7 @@ public:
 };
 
 int main() {
-    int c, value, contador; // number of cases
+    int c, value, contador;
     string inputs;
     cin >> c;
     for (int i = 0; i < c; i++) {
@@ -130,7 +130,7 @@ int main() {
                     contador += s.pop();
                 }
                 q.enqueue(contador);
-                contador = 0; // Reset contador after each pop operation
+                contador = 0; 
             }
         }
         cout << "Caso " << i + 1 << ":" << endl;
