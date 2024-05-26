@@ -1,116 +1,106 @@
 #include <iostream>
-#include <string>
-#include <Windows.h>
-
-#define TABLE_SIZE 100
+#include <vector>
+#include <functional>
+#include <algorithm> // Para std::random_shuffle
+#include <random>    // Para std::default_random_engine
 
 using namespace std;
 
-// Estrutura para armazenar os elementos da tabela hash
-template <typename K, typename V>
-struct HashEntry {
+// Estrutura para armazenar uma entrada na tabela hash
+template<typename K, typename V>
+struct Entry {
     K key;
     V value;
-    bool occupied; // Indica se a entrada está ocupada
+    bool isDeleted;
 
-    HashEntry() : key(), value(), occupied(false) {}
+    Entry() : isDeleted(false) {}
+    Entry(K k, V v, bool d) : key(k), value(v), isDeleted(d) {}
+
+    Entry& operator=(const Entry& other) {
+        if (this != &other) {
+            key = other.key;
+            value = other.value;
+            isDeleted = other.isDeleted;
+        }
+        return *this;
+    }
 };
 
+// Estrutura Dictionary
+template<typename K, typename V>
+struct Dictionary {
+    int size; // tamanho da tabela hash
+    int count; // número de elementos no dicionário
+    vector<Entry<K, V>> H; // tabela hash como um array de Entry
+    vector<int> Perm; // permutação de 1..m-1
+    function<int(K)> h; // função de hash
 
-// Classe para a tabela hash com sondagem linear
-template <typename K, typename V>
-class ClosedHashTable {
-private:
-    HashEntry<K, V> table[TABLE_SIZE];
-
-    // Função hash simples
-    int hashFunction(K key) {
-        return static_cast<int>(key) % TABLE_SIZE;
+    // Construtor
+    Dictionary(int size, function<int(K)> hashFunc) : size(size), count(0), H(size), h(hashFunc) {
+        // Inicializa a permutação de 1..m-1
+        for (int i = 1; i < size; ++i) {
+            Perm.push_back(i);
+        }
+        // Embaralha a permutação para garantir pseudo-random probing
+        auto rng = default_random_engine {};
+        shuffle(Perm.begin(), Perm.end(), rng);
     }
 
-public:
-    // Insere um elemento na tabela hash
+    // Função para buscar um elemento no dicionário
+    V* find(K key) {
+        int i = 0;
+        int pos = h(key) % size;
+        while (H[pos].key != key && !H[pos].isDeleted && i < size - 1) {
+            pos = (h(key) + Perm[i]) % size;
+            i++;
+        }
+        if (H[pos].key == key) {
+            return &H[pos].value;
+        } else {
+            return nullptr;
+        }
+    }
+
+    // Função para inserir um elemento no dicionário
     void insert(K key, V value) {
-        int hash = hashFunction(key);
-        int initialHash = hash; // Guarda o hash inicial para detecção de loop
-
-        while (table[hash].occupied) {
-            if (table[hash].key == key) {
-                // Atualiza o valor se a chave já existir
-                table[hash].value = value;
-                return;
+        if (count < size && find(key) == nullptr) {
+            int i = 0;
+            int pos = h(key) % size; // h é a função de hash
+            while (H[pos].key != K() && !H[pos].isDeleted && i < size - 1) {
+                pos = (h(key) + Perm[i]) % size;
+                i++;
             }
-            hash = (hash + 1) % TABLE_SIZE;
-            if (hash == initialHash) {
-                // A tabela está cheia
-                cout << "Tabela hash cheia!" << endl;
-                return;
+            if (i < size - 1) {
+                H[pos] = Entry<K, V>(key, value, false);
+                count = count + 1;
             }
         }
-
-        // Insere o novo elemento
-        table[hash].key = key;
-        table[hash].value = value;
-        table[hash].occupied = true;
-    }
-
-    // Busca um elemento na tabela hash
-    V find(K key) {
-        int hash = hashFunction(key);
-        int initialHash = hash;
-
-        while (table[hash].occupied) {
-            if (table[hash].key == key) {
-                // Retorna o valor se a chave for encontrada
-                return table[hash].value;
-            }
-            hash = (hash + 1) % TABLE_SIZE;
-            if (hash == initialHash) {
-                break; // Evita loops infinitos
-            }
-        }
-
-        // Se a chave não for encontrada
-        return V();
-    }
-
-    // Remove um elemento da tabela hash
-    void remove(K key) {
-        int hash = hashFunction(key);
-        int initialHash = hash;
-
-        while (table[hash].occupied) {
-            if (table[hash].key == key) {
-                // Remove o elemento se a chave for encontrada
-                table[hash].occupied = false;
-                return;
-            }
-            hash = (hash + 1) % TABLE_SIZE;
-            if (hash == initialHash) {
-                break; // Evita loops infinitos
-            }
-        }
-
-        cout << "Chave não encontrada para remoção!" << endl;
     }
 };
-
 
 int main() {
-    ClosedHashTable<int, string> hashTable;
-    // Configura a codificação de caracteres para UTF-8
-	SetConsoleOutputCP(CP_UTF8);
+    // Exemplo de uso do dicionário
+    auto hashFunc = [](int key) { return key; }; // Função de hash simples
+    Dictionary<int, string> dict(10, hashFunc);
 
-    // Exemplo de inserção
-    hashTable.insert(1, "Valor1");
-    hashTable.insert(2, "Valor2");
+    dict.insert(1, "one");
+    dict.insert(2, "two");
+    dict.insert(3, "three");
+    dict.insert(32, "thirty-two");
 
-    // Exemplo de busca
-    cout << "Valor encontrado: " << hashTable.find(1) << endl;
+    string* value = dict.find(2);
+    if (value) {
+        cout << "Value found: " << *value << endl;
+    } else {
+        cout << "Value not found" << endl;
+    }
 
-    // Exemplo de remoção
-    hashTable.remove(1);
-    cout << "Após remoção: " << hashTable.find(1) << endl;
+    value = dict.find(32);
+    if (value) {
+        cout << "Value found: " << *value << endl;
+    } else {
+        cout << "Value not found" << endl;
+    }
 
     return 0;
 }
