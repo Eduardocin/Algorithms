@@ -1,116 +1,102 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct {
-    int li;
-    int ri;
-    int index;
-} Pessoa;
+#include <string.h>
 
 typedef struct node {
-    Pessoa pessoa;
+    char text;
     struct node* next;
 } Node;
 
-typedef struct fila {
-    int size;
-    Node* front;
-    Node* rear;
-} Fila;
+typedef struct list {
+    Node* head;
+    Node* tail;
+    Node* curr;
+} List;
 
-Node* create_node(Pessoa pessoa, Node* nextval) {
+Node* create_node(char text) {
     Node* n = (Node*)malloc(sizeof(Node));
-    n->pessoa = pessoa;
-    n->next = nextval;
+    if (n == NULL) {
+        exit(0);
+    }
+    n->text = text;
+    n->next = NULL;
     return n;
 }
 
-Fila* create_queue() {
-    Fila* q = (Fila*)malloc(sizeof(Fila));
-    q->front = q->rear = NULL;
-    q->size = 0;
-    return q;
+List* create_list() {
+    List* list = (List*)malloc(sizeof(List));
+    list->head = NULL;
+    list->tail = NULL;
+    list->curr = NULL;
+    return list;
 }
 
-void enqueue(Fila* q, Pessoa pessoa) {
-    Node* newNode = create_node(pessoa, NULL);
-    if (q->rear == NULL) {
-        q->front = q->rear = newNode;
+void insert(List* list, char text) {
+    Node* newNode = create_node(text);
+
+    if (list->curr == NULL) {
+        newNode->next = list->head;
+        list->head = newNode;
+        if (list->tail == NULL) {
+            list->tail = newNode;
+        }
+        list->curr = newNode;
     } else {
-        q->rear->next = newNode;
-        q->rear = newNode;
+        newNode->next = list->curr->next;
+        list->curr->next = newNode;
+        if (list->curr == list->tail) {
+            list->tail = newNode;
+        }
+        list->curr = newNode;
     }
-    q->size++;
 }
 
-Pessoa dequeue(Fila* q) {
-    if (q->size == 0) exit(0);
-    Node* temp = q->front;
-    Pessoa it = temp->pessoa;
-    q->front = q->front->next;
-    if (q->front == NULL) {
-        q->rear = NULL;
+void freeList(Node* head) {
+    Node* temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp);
     }
-    free(temp);
-    q->size--;
-    return it;
 }
 
-int isQueueEmpty(Fila* q) {
-    return q->size == 0;
+void Text(char* c) {
+    List* list = create_list();
+    Node* home = NULL;
+
+    int len = strlen(c);
+    for (int i = 0; i < len; ++i) {
+        if (c[i] == '[') {
+            list->curr = NULL;
+            home = NULL;
+        } else if (c[i] == ']') {
+            list->curr = list->tail;
+        } else {
+            if (list->curr == NULL && home != NULL) {
+                list->curr = home;
+            }
+            insert(list, c[i]);
+            if (list->curr == list->head) {
+                home = list->curr;
+            }
+        }
+    }
+
+    Node* node = list->head;
+    while (node != NULL) {
+        printf("%c", node->text);
+        node = node->next;
+    }
+
+    freeList(list->head);
+    free(list);
 }
 
 int main() {
-    int t;
-    scanf("%d", &t);
-
-    while (t > 0) {
-        t--;
-        int n;
-        scanf("%d", &n);
-
-        Pessoa* pessoas = (Pessoa*)malloc(n * sizeof(Pessoa));
-        for (int i = 0; i < n; i++) {
-            scanf("%d %d", &pessoas[i].li, &pessoas[i].ri);
-            pessoas[i].index = i;
-        }
-
-        int atual = 1; // Inicializa o tempo atual como 1
-        int* posicao = (int*)malloc(n * sizeof(int));
-
-        for (int i = 0; i < n; i++) {
-            posicao[i] = 0;
-        }
-
-        Fila* fila = create_queue();
-
-        for (int i = 0; i < n; i++) {
-            enqueue(fila, pessoas[i]);
-        }
-
-        while (!isQueueEmpty(fila)) {
-            Pessoa frontPessoa = dequeue(fila);
-
-            if (atual < frontPessoa.li) {
-                atual = frontPessoa.li;
-            }
-
-            if (atual <= frontPessoa.ri) {
-                posicao[frontPessoa.index] = atual;
-                atual++;
-            } else {
-                posicao[frontPessoa.index] = 0;
-            }
-        }
-
-        for (int i = 0; i < n; i++) {
-            printf("%d ", posicao[i]);
-        }
+    char line[100001];
+    while (scanf("%s", line)!= EOF) {
+        Text(line);
         printf("\n");
-
-        free(fila);
-        free(pessoas);
-        free(posicao);
     }
 
     return 0;

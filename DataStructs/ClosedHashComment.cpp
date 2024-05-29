@@ -1,7 +1,7 @@
-#include <string> // Inclui a biblioteca de strings
-#include <iostream> // Inclui a biblioteca de entrada e saída
-#include <vector> // Inclui a biblioteca de vetores
-#include <stdexcept> // Inclui a biblioteca de exceções padrão
+#include <string> 
+#include <iostream> 
+#include <vector> 
+#include <stdexcept> 
 
 using namespace std; // Usa o namespace padrão
 
@@ -54,17 +54,18 @@ public:
             int hash = hashFunction(key); // Calcula o hash da chave
             int pos = hash; // Posição inicial é o hash calculado
             int i = 0; // Contador para probing linear
-
-            // Procura posição para inserir
+        
+                // Procura posição para inserir
             while (!table[pos].isEmpty && !table[pos].isRemoved) {
                 pos = linearProbing(hash, ++i); // Calcula a próxima posição
             }
+            
 
             table[pos] = Entry(key, value); // Insere a nova entrada
             table[pos].isRemoved = false; // Certifica-se de que a entrada não está marcada como removida
             table[pos].isEmpty = false; // Certifica-se de que a entrada não está marcada como vazia
             size++; // Incrementa o tamanho da tabela
-        }
+        
     }
 
     void clear() {
@@ -108,26 +109,16 @@ public:
 };
 
 int main() {
-    int cases;
-    cin >> cases; // Lê o número de casos
-    HashTable<string, string> hashTable(cases); // Inicializa a tabela hash com a capacidade fornecida
+    HashTable<string, string> teste(10); // Inicializa a tabela hash com a capacidade fornecida
 
-    for (int i = 0; i < cases; i++) {
-        string command, key;
-        cin >> command >> key; // Lê o comando e a chave
+    teste.insert("abcd", "1234");
+    teste.insert("badc", "1234");
+    teste.insert("abdc", "1234");
+    teste.insert("bacd", "1224");
+    cout << teste.find("bacd")<< endl;
+    teste.remove("abdc");
+    cout << teste.find("bacd")<< endl;
+    teste.insert("abdc", "1233");
 
-        if (command == "add") {
-            hashTable.insert(key, key); // Insere a chave na tabela
-        } else if (command == "rmv") {
-            hashTable.remove(key); // Remove a chave da tabela
-        } else if (command == "sch") {
-            try {
-                auto result = hashTable.find(key); // Tenta encontrar a chave na tabela
-                cout << result << " " << key << endl; // Imprime o valor e a chave se encontrada
-            } catch (runtime_error& e) {
-                cout << key << " " << -1 << endl; // Imprime a chave e -1 se não encontrada
-            }
-        }
-    }
     return 0;
 }
