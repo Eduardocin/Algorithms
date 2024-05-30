@@ -9,72 +9,82 @@ using namespace std;
 template<typename K, typename V>
 class HashTable{
 private:
-    // Estrutura para armazenar pares chave-valor
+
     struct Entry{
         K key;
         V value;
-        Entry(K k, V v):(key(k), value(v)){}
+        Entry(const K& k, const V& v): key(k), value(v){}
     };
 
     int capacity;
     int size;
     vector<list<Entry>> table;
 
-    int hashFunction(K key){
-        return abs(key) % capacity;
-    }
-public:
-    HashTable(int capacity): capacity(capacity, size(0)){
-        table.assign(capacity, list<Entry>());
+    int hash(const K& key){
+        return abs(key) % 10;
     }
 
-    V find(K key){
-        int index = hashFunction(key);
-        for(const auto& entry: table[index]){
-            if(entry.key == key){
-                return entry.value;
+public:
+    HashTable(int capacity): capacity(capacity), size(0){
+        table.assign(capacity, list<Entry>());}
+
+    V find(const K& key){
+        int index = hash(key);
+        for (const auto& entry : table[index]){
+            if(node.key == key){
+                return node.value;
             }
         }
-            throw runtime_error("Key not found!");
+        throw runtime_error("Key not found");
     }
 
-    void insert(K key, V value){
+    void insert(const K& key, const V& value){
         try{
             find(key);
             return;
         }catch(const runtime_error&){
 
         }
-        int pos = hashFunction(key);
-        auto& l = table[pos];
-        Entry dict(key, value);
-        l.push_back(dict);
+
+        int pos = hash(key);
+        list<Entry>& l = table[pos];
+        Entry entry(key, value);
+        l.emplace_back(entry);
         size++;
     }
 
-    void remove(K key){
-        int index = hashFunction(key);
-        auto& l = table[index];
-
-        for(auto it = chain.begin(); it != chain.end(); ++it){
-            if(it->key == key){
-                l.erase(it);
+    void remove(const K& key){
+        int pos = hash(key);
+        list<Entry>& list = table[pos];
+        for(auto& x : list){
+            if(x.key == key){
+                list.remove(x);
                 size--;
                 return;
             }
         }
-    }   
+        throw runtime_error("Key not found");
 
-    
+    }
+
     void clear(){
-        for(int i=0; i<capacity; i++){
-            table[i].clear();
-        }
+        table.assign(capacity, list<Entry>());
         size = 0;
     }
 
-    int getSize(){
+    int getSize() const{
         return size;
+    }
+
+    void print(){
+        for(int i = 0; i < capacity; i++){
+            cout << i << ": ";
+            for(const auto& x : table[i]){
+                cout << "(" << x.key << ", " << x.value << ") ";
+            }
+            cout << endl;
+        }
+        cout << endl;
     }
 
 };
