@@ -25,6 +25,8 @@ private:
     }
 
 public:
+
+    //construtor
     HashTable(int capacity): capacity(capacity), size(0){
         table.assign(capacity, list<Entry>());}
 
