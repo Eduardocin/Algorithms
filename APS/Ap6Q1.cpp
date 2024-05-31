@@ -13,6 +13,7 @@ private:
     struct Node {
         K key;   // Chave
         V value; // Valor
+        Node(){} // Construtor para inicializar chave e valor vazios
         Node(K k, V v) : key(k), value(v) {} // Construtor para inicializar chave e valor
     };
 
@@ -26,11 +27,7 @@ private:
 
 public:
     HashTable(int capacity) : capacity(capacity), size(0) {
-        table.resize(capacity); // Redimensiona a tabela para a capacidade especificada
-
-        // for i ← 0 to size − 1 do
-        // d.H[i] ← create list();
-        // Isso é tratado implicitamente pela inicialização do vetor e da lista em C++
+        table.assign(capacity, list<Node>()); // inicializar o vetor de listas vazios
     }
 
 
@@ -39,7 +36,7 @@ public:
 
         // Verificar se a chave já existe
         try{
-            fin(key);    // Se find não lançar exceção, a chave existe, então não fazemos nada
+            find(key);    // Se find não lançar exceção, a chave existe, então não fazemos nada
             return;
         }catch (const runtime_error&) {
             // Chave não existe, prosseguir com a inserção
@@ -57,21 +54,19 @@ public:
     for (const auto& node : table[index]) {   // Itera sobre cada nó na lista localizada no índice calculado
         if (node.key == key) {    // Se a chave do nó atual for igual à chave procurada
             return node.value;     // Retorna o valor associado à chave
-
         }
     }
         throw runtime_error("key not find");     // Se a chave não for encontrada, lança uma exceção indicando que a chave não foi encontrada
-
 }
 
     void remove(K key) {
     
     int index = hashFunction(key);     // Calcula o índice na tabela de dispersão usando a função de dispersão
-    auto& chain = table[index];     // Obtém a lista de nós localizada no índice calculado
+    auto& list = table[index];     // Obtém a lista de nós localizada no índice calculado
     // Itera sobre cada nó na lista
-    for (auto it = chain.begin(); it != chain.end(); ++it) {
+    for (auto it = list.begin(); it != list.end(); ++it) {
         if (it->key == key) {         // Se a chave do nó atual for igual à chave procurada
-            chain.erase(it);     // Remove o nó da list
+            list.erase(it);     // Remove o nó da list
             size--;
             return;
         }
@@ -80,10 +75,8 @@ public:
     throw runtime_error("Key not found");
 }
     void clear() {
-        for (int i = 0; i < capacity; i++) {
-            table[i].clear(); // Limpa cada lista na tabela
-        }
-        size = 0; // Reseta o tamanho para 0
+        table.assign(capacity, list<Node>()); // Inicializa o vetor de listas vazios
+        size = 0; // Inicializa o tamanho da tabela de dispersão para 0
     }
 
     int getSize() {

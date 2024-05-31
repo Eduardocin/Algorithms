@@ -1,115 +1,117 @@
-#include <string> // Inclui a biblioteca de strings
-#include <iostream> // Inclui a biblioteca de entrada e saída
-#include <vector> // Inclui a biblioteca de vetores
-#include <stdexcept> // Inclui a biblioteca de exceções padrão
+#include <iostream>
+#include <vector>
+#include <string>
+#include <stdexcept>
+using namespace std;
 
-using namespace std; // Usa o namespace padrão
-
+// Implementation of closed hash table with linear probing
 template <typename K, typename V>
 class HashTable {
 private:
+    // Structure to hold key-value pairs and state of the entry
     struct Entry {
-        K key; // Chave da entrada
-        V value; // Valor da entrada
-        bool isEmpty; // Indica se a entrada está vazia
-        bool isRemoved; // Indica se a entrada foi removida
-        Entry() : isEmpty(true), isRemoved(false) {} // Construtor padrão
-        Entry(K key, V value) : key(key), value(value), isEmpty(false), isRemoved(false) {} // Construtor com parâmetros
+        K key;         // Key of the entry
+        V value;       // Value of the entry
+        int state;     // State of the entry: 0 (empty), 1 (occupied), 2 (deleted)
+
+        Entry() : state(0) {}  // Default constructor, initializes state to empty
+        Entry(const K& k, const V& v) : key(k), value(v), state(1) {}  // Parameterized constructor, initializes key, value, and sets state to occupied
     };
 
-    int capacity; // Capacidade da tabela hash
-    int size; // Tamanho atual da tabela hash
-    vector<Entry> table; // Vetor que representa a tabela hash
+    int capacity;           // Maximum capacity of the hash table
+    int size;               // Current number of elements in the hash table
+    vector<Entry> table;    // Vector to hold the entries
 
-    int hashFunction(K key) {
-        // Função de dobra para calcular o hash
+    // Hash function to compute the hash value for a given key
+    int hash(const K& key) {
+        // Simple hash function for strings. For more general usage, std::hash can be used.
         int sum = 0;
-        for (int i = 0; i < key.length(); i++) {
-            sum += int(key[i]); // Soma os valores ASCII dos caracteres da chave
+        for (char c : key) {
+            sum += int(c);
         }
-        return abs(sum) % capacity; // Retorna o hash calculado
+        return abs(sum) % capacity;
     }
 
-    int linearProbing(int hash, int i) {
-        // Função de probing linear
-        return (hash + i) % capacity; // Calcula a próxima posição
+    // Linear probing function to handle collisions
+    int linearProbe(int h, int i) const {
+        return (h + i) % capacity;
     }
 
 public:
-    HashTable(int capacity) : capacity(capacity), size(0) {
-        // Inicializa a tabela hash com a capacidade fornecida
-        table.assign(capacity, Entry()); // Preenche o vetor com entradas vazias
+    // Constructor to initialize the hash table with a given capacity
+    HashTable(int capacidade) : capacity(capacidade), size(0) {
+        table.assign(capacity, Entry());  // Initialize the table with empty entries
     }
 
-    void insert(K key, V value) {
-        if (size >= capacity) {
-            throw runtime_error("Hash table is full"); // Lança exceção se a tabela estiver cheia
+    // Function to find the index associated with a given key
+    int find(const K& k) {
+        int h = hash(k);  // Compute the hash value for the key
+        int pos = h;
+
+        for(int i = 0; i < capacity; i++) {  // Iterate through the table to find the key
+            pos = linearProbe(h, i);  // Compute the next position using linear probing
+            if(table[pos].state == 1 && table[pos].key == k) {  // If the key is found
+                return pos;  // Return the index of the entry
+            }
+            else if(table[pos].state == 0){  // If an empty entry is found
+                break;  // Exit the loop as the key cannot be in the table
+            }
         }
+        throw std::runtime_error("Key not found");
+    }
 
-        int hash = hashFunction(key); // Calcula o hash da chave
-        int pos = hash; // Posição inicial é o hash calculado
-        int i = 0; // Contador para probing linear
-        int firstRemoved = -1; // Armazena a primeira posição removida encontrada
+    // Function to insert a key-value pair into the hash table
+    void insert(const K& k, const V& v) {
+        if (size < capacity){  // Check if there is space in the table
+            try {
+                find(k);  // Check if the key already exists
+                return;  // Do not insert if the key exists
+            } catch (std::runtime_error& e) {
+                // Continue to insertion if the key does not exist
+            }
 
-        // Procura posição para inserir
-        while (!table[pos].isEmpty) {
-            if (table[pos].isRemoved) {
-                if (firstRemoved == -1) {
-                    firstRemoved = pos; // Armazena a primeira posição removida
+            int h = hash(k);  // Compute the hash value for the key
+            int pos = h;
+            int i = 0;
+
+            // Find the next available position using linear probing
+            while(table[pos].state != 0 && table[pos].state != 2) {
+                pos = linearProbe(h, ++i);
+            }
+
+            // Insert the key-value pair at the available position
+            table[pos] = Entry(k, v);
+            table[pos].state = 1;  // Mark the entry as occupied
+            size++;  // Increment the size of the table
+        }
+    }
+
+    // Function to remove a key-value pair from the hash table
+    void remove(const K& k) {
+        int h = hash(k);  // Compute the hash value for the key
+        int pos = h;
+        int i = 0;
+
+        try {
+            find(k);  // Check if the key exists
+            // Iterate through the table to find the key
+            while (table[pos].state != 0) {
+                pos = linearProbe(h, ++i);
+                if (table[pos].state == 1 && table[pos].key == k) {  // If the key is found
+                    table[pos].state = 2;  // Mark the entry as deleted
+                    size--;  // Decrement the size of the table
+                    return;
                 }
-            } else if (table[pos].key == key) {
-                return; // A chave já existe, não faz nada
             }
-            pos = linearProbing(hash, ++i); // Calcula a próxima posição
+        } catch (std::runtime_error& e) {
+            throw runtime_error("Key not found");  // Throw an exception if the key is not found
         }
-
-        if (firstRemoved != -1) {
-            pos = firstRemoved; // Usa a posição removida se encontrada
-        }
-
-        table[pos] = Entry(key, value); // Insere a nova entrada
-        table[pos].isRemoved = false; // Certifica-se de que a entrada não está marcada como removida
-        table[pos].isEmpty = false; // Certifica-se de que a entrada não está marcada como vazia
-        size++; // Incrementa o tamanho da tabela
     }
 
+    // Function to clear the hash table
     void clear() {
-        for (int i = 0; i < capacity; i++) {
-            table[i] = Entry(); // Limpa todas as entradas da tabela
-        }
-        size = 0; // Reseta o tamanho da tabela
-    }
-
-    pair<V, int> find(K key) {
-        int hash = hashFunction(key); // Calcula o hash da chave
-        int pos = hash; // Posição inicial é o hash calculado
-        int i = 0; // Contador para probing linear
-
-        while (!table[pos].isEmpty) {
-            if (!table[pos].isRemoved && table[pos].key == key) {
-                return make_pair(table[pos].value, pos); // Retorna o valor e a posição se a chave for encontrada
-            }
-            pos = linearProbing(hash, ++i); // Calcula a próxima posição
-        }
-
-        throw runtime_error("Key not found"); // Lança exceção se a chave não for encontrada
-    }
-
-    void remove(K key) {
-        int hash = hashFunction(key); // Calcula o hash da chave
-        int pos = hash; // Posição inicial é o hash calculado
-        int i = 0; // Contador para probing linear
-
-        while (!table[pos].isEmpty) {
-            if (!table[pos].isRemoved && table[pos].key == key) {
-                table[pos].isRemoved = true; // Marca a entrada como removida
-                size--; // Decrementa o tamanho da tabela
-                return;
-            }
-            pos = linearProbing(hash, ++i); // Calcula a próxima posição
-        }
-
-        throw runtime_error("Key not found"); // Lança exceção se a chave não for encontrada
+        table.assign(capacity, Entry());  // Reinitialize the table with empty entries
+        size = 0;  // Reset the size to 0
     }
 };
 
@@ -118,9 +120,9 @@ int main() {
     cin >> cases; // Lê o número de casos
     HashTable<string, string> hashTable(cases); // Inicializa a tabela hash com a capacidade fornecida
 
-    for (int i = 0; i < cases; i++) {
-        string command, key;
-        cin >> command >> key; // Lê o comando e a chave
+    string command, key;
+    while (cin >> command && command != "fim") {
+        cin >> key; // Lê a chave
 
         if (command == "add") {
             hashTable.insert(key, key); // Insere a chave na tabela
@@ -128,8 +130,8 @@ int main() {
             hashTable.remove(key); // Remove a chave da tabela
         } else if (command == "sch") {
             try {
-                auto result = hashTable.find(key); // Tenta encontrar a chave na tabela
-                cout << result.first << " " << result.second << endl; // Imprime o valor e a posição se encontrada
+                int index  = hashTable.find(key);
+                cout << key << " " << index << endl; // Imprime a chave e o índice se encontrada
             } catch (runtime_error& e) {
                 cout << key << " " << -1 << endl; // Imprime a chave e -1 se não encontrada
             }
