@@ -48,13 +48,17 @@ public:
         int h = hash(k);  // Compute the hash value for the key
         int pos = h;
 
-        for(int i = 0; i < capacity; i++) {  // Iterate through the table to find the key
-            pos = linearProbe(h, i);  // Compute the next position using linear probing
-            if(table[pos].state == 1 && table[pos].key == k) {  // If the key is found
-                return table[pos].value;  // Return the associated value
-            }
-            else if(table[pos].state == 0){  // If an empty entry is found
-                throw std::runtime_error("Key not found");  // Throw an exception
+        if(table[pos].state == 1 && table[pos].key == k) { 
+            return table[pos].value;  // Return the associated value
+        }else{
+            for(int i = 1; i < capacity; i++) {  // Iterate through the table to find the key
+                pos = linearProbe(h, i);  // Compute the next position using linear probing
+                if(table[pos].state == 1 && table[pos].key == k) {  // If the key is found
+                    return table[pos].value;  // Return the associated value
+                }
+                else if(table[pos].state == 0){  // If an empty entry is found
+                    throw std::runtime_error("Key not found");  // Throw an exception
+                }
             }
         }
     }
@@ -94,6 +98,10 @@ public:
 
         try{
             find(k);  // Check if the key exists
+            int h = hash(k);  // Compute the hash value for the key
+            int pos = h;
+            int i = 0;
+
             // Iterate through the table to find the key
             while (table[pos].state != 0) {
                 pos = linearProbe(h, ++i);
@@ -113,6 +121,16 @@ public:
         table.assign(capacity, Entry());  // Reinitialize the table with empty entries
         size = 0;  // Reset the size to 0
     }
+    
+    void getKeys() {
+        for(int i = 0; i < capacity; i++) {
+            if(table[i].state == 1) {
+                cout << table[i].key << " ";
+            }
+        }
+        cout << endl;
+    }
+
 };
 
 int main() {
@@ -132,6 +150,7 @@ int main() {
         cout << e.what() << endl;
     }
 
+    teste.getKeys();
     // Remove a key and find it again
     teste.remove("abdc");
     try {
