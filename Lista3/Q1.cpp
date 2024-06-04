@@ -39,7 +39,6 @@ public:
     }
 
     V find(const K& key){
-        
         int h = hash(key);
         int pos = h;
         if(table[h].state == 1 && table[h].key == key){
@@ -48,7 +47,8 @@ public:
             for(int i = 1; i < 20; i++){
                 pos = prob(h, i);
                 if(table[pos].state == 1 && table[pos].key == key){
-                    return table[pos].value;}
+                    return table[pos].value;
+                }
                 else if(table[pos].state == 0){
                     return -1;
                 }
@@ -58,7 +58,6 @@ public:
     }
 
     void insert(const K& key){
-        V value = hash(key);
         if(size < capacity){
             if(find(key) != -1){
                 return;
@@ -66,16 +65,18 @@ public:
             else{
                 int h = hash(key);
                 int pos = h;
-                if(table[pos].state == 0){
+                if(table[pos].state == 0 || table[pos].state == 2){
+                    V value = pos;
                     table[pos] = Entry(key,value);
                     table[pos].state = 1;
                     size++;
                     return;
                     }
                 else{
-                    for(int i=0; i < 20; i++){
+                    for(int i=1; i < 20; i++){
                         pos = prob(h, i);
-                        if(table[pos].state == 0){
+                        if(table[pos].state == 0 || table[pos].state == 2){
+                            V value = pos;
                             table[pos] = Entry(key, value);
                             table[pos].state = 1;
                             size++;
@@ -121,33 +122,34 @@ public:
         }
     }
 
+    void clear(){
+        size = 0;
+        table.assign(capacity, Entry());
+    }
 };
 
 
 int main(){
     int cases, numOperations;
     string operation, key;
+    HashTable<string, int> table(101);
     cin >> cases;
     for(int i = 0; i < cases; i++){
         cin >> numOperations;
         cin.ignore();
-        HashTable<string, int> table(101);
         for(int j = 0; j < numOperations; j++){
-            // os inputs são no formato COMANDO:CHAVE
             getline(cin, operation, ':');
             getline(cin, key);
-            if(operation == "ADD"){
+            if(operation == "ADD" && key.length() > 0){
                 table.insert(key);
             }
-            else if(operation == "DEL"){
+            else if(operation == "DEL" && key.length() > 0){
                 table.remove(key);
             }
         }
         cout << table.getSize() << endl;
         table.print();
-
+        table.clear();
     }
-
-
     return 0;
 }
