@@ -142,13 +142,13 @@ int main(){
     assert(bst.find(20) == 200);
     assert(bst.find(5) == 50);
     assert(bst.find(15) == 150);
-    assert(bst.find(25) == -1); // Elemento não existente
+    assert(bst.find(25) == -1); 
 
     // Teste de remoção
     assert(bst.remove(10) == 100);
-    assert(bst.find(10) == -1); // Elemento removido
+    assert(bst.find(10) == -1); 
     assert(bst.remove(20) == 200);
-    assert(bst.find(20) == -1); // Elemento removido
+    assert(bst.find(20) == -1); 
 
     cout << "Todos os testes passaram!" << endl;
 
