@@ -25,46 +25,12 @@ private:
     };
 
     vector<Node> arr;  // Vector to store heap elements
-    int maxSize;       // Maximum size of the heap
 
-    // Function to maintain heap property from bottom to top
-    void heapifyUp(int index) {
-        if (index <= 1) return; // If the node is the root, return
 
-        int parentIndex = index / 2; // Calculate parent index
-        // If the current node's key is greater than the parent's key, swap them
-        if (arr[index].key > arr[parentIndex].key) {
-            swap(arr[index], arr[parentIndex]);
-            heapifyUp(parentIndex); // Recursively heapify the parent
-        }
-    }
-
-    // Function to maintain heap property from top to bottom
-    void heapifyDown(int index) {
-        int leftChild = 2 * index;       // Index of left child
-        int rightChild = 2 * index + 1;  // Index of right child
-        int largest = index;             // Assume current node is the largest
-
-        // If left child exists and is greater than the current largest, update largest
-        if (leftChild < arr.size() && arr[leftChild].key > arr[largest].key) {
-            largest = leftChild;
-        }
-
-        // If right child exists and is greater than the current largest, update largest
-        if (rightChild < arr.size() && arr[rightChild].key > arr[largest].key) {
-            largest = rightChild;
-        }
-
-        // If the largest is not the current node, swap and heapify down
-        if (largest != index) {
-            swap(arr[index], arr[largest]);
-            heapifyDown(largest);
-        }
-    }
 
 public:
     // Constructor for Heap
-    Heap(int maxSize) : maxSize(maxSize) {
+    Heap() :  {
         arr.push_back(Node(K(), V())); // Placeholder for index 0
     }
 
@@ -92,11 +58,8 @@ public:
 
     // Function to add a new element to the heap
     void add(K key, V value) {
-        if (arr.size() - 1 >= maxSize) 
-            throw(runtime_error("Tamanho máximo atingido!")); // Throw error if heap is full
         else {        
             arr.push_back(Node(key, value)); // Add new node to the end
-            heapifyUp(arr.size() - 1); // Heapify up from the last element
         }
     }
 
