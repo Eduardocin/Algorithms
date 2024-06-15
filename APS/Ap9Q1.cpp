@@ -18,8 +18,10 @@ private:
 
             while (!heap && 2 * k <= heapSize) {
                 int j = 2 * k;
-                if (j < heapSize && arr[j] > arr[j + 1]) {
-                    j++;
+                if (j < heapSize){
+                    if(arr[j] > arr[j + 1]) {
+                        j++;
+                    }
                 }
                 if (v <= arr[j]) {
                     heap = true;
