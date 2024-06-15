@@ -1,111 +1,114 @@
 #include <iostream>
 #include <vector>
-
+#include <string>
 using namespace std;
 
 class MaxHeap {
 private:
-    vector<int> arr;
+    vector<char> arr;
     int heapSize;
 
-        // void heapify(int i) { // Corrected heapify function
-        //     int largest = i; 
-        //     int left = 2 * i; 
-        //     int right = 2 * i + 1;
-
-        //     if (left <= heapSize && arr[left] > arr[largest]) {
-        //         largest = left;
-        //     }
-
-        //     if (right <= heapSize && arr[right] > arr[largest]) {
-        //         largest = right;
-        //     }
-
-        //     if (largest != i) {
-        //         swap(arr[i], arr[largest]);
-        //         heapify(largest); // Recursively heapify the affected subtree
-        //     }
-        // }
-
-    void heapifyUp(int i) {
-    while (i > 1 && arr[i] > arr[i / 2]) { 
-        swap(arr[i], arr[i / 2]);
-        i /= 2; 
+    void siftUp(int i) {
+        // While the element is not at the root and the parent is smaller than the current element
+        while (i > 1 && arr[i / 2] < arr[i]) {
+            // Swap the current element with its parent
+            swap(arr[i], arr[i / 2]);
+            // Move up to the parent's index
+            i = i / 2;
+        }
     }
-}
+
+    void siftDown(int i) {
+        // While the current node has at least one child
+        while (2 * i <= heapSize) {
+            // Assume the left child is the larger child
+            int j = 2 * i;
+            
+            // If there is a right child and it's larger than the left child
+            if (j < heapSize && arr[j] < arr[j + 1]) {
+                // Use the right child instead
+                j++;
+            }
+            
+            // If the current element is greater than or equal to the largest child, stop
+            if (arr[i] >= arr[j]) {
+                break;
+            }
+            
+            // Swap the current element with the larger child
+            swap(arr[i], arr[j]);
+            
+            // Move down to the index of the larger child
+            i = j;
+        }
+    }
+
 
 public:
-    MaxHeap() : heapSize(0) {
-        arr.push_back(0); // Dummy element at index 0
+    MaxHeap(int maxSize) : heapSize(0) {
+        arr.resize(maxSize + 1); // Allocate space for maxSize elements plus dummy at index 0
     }
 
-    void insert(int value) {
-        arr.push_back(value);
-        heapSize++;
-        heapifyUp(heapSize); // Heapify from the newly inserted node
-    }
-
-    ~MaxHeap() {}
-
-    int findMax() {
-        return arr[1];
-    }
-
-    int removeMax() {
-        int max = arr[1];
-        arr[1] = arr[heapSize]; 
-        arr[heapSize] = max;
-        heapSize--;
-        heapifyUp(heapSize); // Heapify from the root after removing the max
-        return max;
-    }
-
-    void heapSort() {
-        int initialSize = heapSize;
-        for (int i = 1; i <= initialSize; i++) {
-            removeMax();
+    void insert(char value) {
+        if (heapSize < arr.size() - 1) {
+            heapSize++;
+            arr[heapSize] = value;
+            siftUp(heapSize);
         }
-        heapSize = initialSize;
     }
 
-    void print() {
-        for (int i = 1; i <= heapSize; i++) {
-            cout << arr[i] << " ";
+    char findMax() {
+        if (heapSize >= 1) {
+            return arr[1];
         }
-        cout << endl;
+        return '\0'; // Return null character if the heap is empty
+    }
+
+    void removeMax() {
+        if (heapSize >= 1) {
+            arr[1] = arr[heapSize];
+            heapSize--;
+            siftDown(1);
+        }
+    }
+
+    int getSize() {
+        return heapSize;
     }
 };
 
 int main() {
-    MaxHeap heap;
+    int maxSize, numQueries;
+    string query;
 
-    // Inserting values into the heap
-    heap.insert(10);
-    heap.insert(20);
-    heap.insert(5);
-    heap.insert(30);
-    heap.insert(15);
+    cin >> maxSize >> numQueries;
 
-    // Printing the heap
-    cout << "Heap after insertions: ";
-    heap.print();
+    MaxHeap heap(maxSize);
 
-    // Finding the maximum
-    cout << "Maximum value in the heap: " << heap.findMax() << endl;
-
-    // Removing the maximum
-    cout << "Removing the maximum: " << heap.removeMax() << endl;
-
-    // Printing the heap after removing the maximum
-    cout << "Heap after removing the maximum: ";
-    heap.print();
-
-    // Sorting the heap
-    heap.heapSort();
-
-    // Printing the heap after sorting
-    cout << "Heap after sorting: ";
-    heap.print();
+    for (int i = 0; i < numQueries; i++) {
+        cin >> query;
+        if (query == "insert") {
+            char value;
+            cin >> value;
+            if (heap.getSize() < maxSize) {
+                heap.insert(value);
+            } else {
+                cout << "Tamanho máximo atingido!" << endl;
+            }
+        } else if (query == "remove") {
+            if (heap.getSize() == 0) {
+                cout << "Heap vazia!" << endl;
+            } else {
+                heap.removeMax();
+            }
+        } else if (query == "max") {
+            if (heap.getSize() == 0) {
+                cout << "Não há elemento no topo." << endl;
+            } else {
+                cout << heap.findMax() << endl;
+            }
+        }
+    }
 
     return 0;
 }
