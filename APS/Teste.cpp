@@ -9,40 +9,33 @@ private:
     int heapSize;
 
     void siftUp(int i) {
-        // While the element is not at the root and the parent is smaller than the current element
         while (i > 1 && arr[i / 2] < arr[i]) {
-            // Swap the current element with its parent
             swap(arr[i], arr[i / 2]);
-            // Move up to the parent's index
             i = i / 2;
         }
     }
 
     void siftDown(int i) {
-        // While the current node has at least one child
-        while (2 * i <= heapSize) {
-            // Assume the left child is the larger child
-            int j = 2 * i;
-            
-            // If there is a right child and it's larger than the left child
-            if (j < heapSize && arr[j] < arr[j + 1]) {
-                // Use the right child instead
-                j++;
-            }
-            
-            // If the current element is greater than or equal to the largest child, stop
-            if (arr[i] >= arr[j]) {
-                break;
-            }
-            
-            // Swap the current element with the larger child
-            swap(arr[i], arr[j]);
-            
-            // Move down to the index of the larger child
-            i = j;
-        }
-    }
+        int k = i;
+        int v = arr[k];
+        bool heap = false;
 
+        while (!heap && 2 * k <= heapSize) {
+            int j = 2 * k;
+            if (j < heapSize) {
+                if (arr[j] < arr[j + 1]) {
+                    j++;
+                }
+            }
+            if (v >= arr[j]) {
+                heap = true;
+            } else {
+                arr[k] = arr[j];
+                k = j;
+            }
+        }
+        arr[k] = v;
+    }
 
 public:
     MaxHeap(int maxSize) : heapSize(0) {
@@ -64,12 +57,15 @@ public:
         return '\0'; // Return null character if the heap is empty
     }
 
-    void removeMax() {
+    char removeMax() {
         if (heapSize >= 1) {
+            char max = arr[1];
             arr[1] = arr[heapSize];
             heapSize--;
             siftDown(1);
+            return max;
         }
+        return '\0';
     }
 
     int getSize() {

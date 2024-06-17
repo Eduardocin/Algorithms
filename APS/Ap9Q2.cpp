@@ -3,16 +3,17 @@
 #include <string>
 using namespace std;
 
+template <typename T>
 class MaxHeap {
 private:
-    vector<char> arr;
+    vector<T> arr;
     int heapSize;
 
     void heapfyUp() {
         int i = heapSize;
-        char parent = arr[i / 2];
+        T parent = arr[i / 2];
         while (i > 1 && parent < arr[i]) {
-            swap(arr[i], parent);
+            swap(arr[i], arr[i / 2]);
             i = i / 2;
         }
     }
@@ -20,7 +21,7 @@ private:
     void heapfy() {
         for(int i = heapSize / 2; i > 0; i--) {
             int k = i;
-            int v = arr[k];
+            T v = arr[k];
             bool heap = false;
 
             while (!heap && 2 * k <= heapSize) {
@@ -46,7 +47,7 @@ public:
         arr.resize(maxSize + 1); // Allocate space for maxSize elements plus dummy at index 0
     }
 
-    void insert(char value) {
+    void insert(T value) {
         if (heapSize < arr.size() - 1) {
             heapSize++;
             arr[heapSize] = value;
@@ -54,22 +55,22 @@ public:
         }
     }
 
-    char findMax() {
+    T findMax() {
         if (heapSize >= 1) {
             return arr[1];
         }
-        return '\0'; // Return null character if the heap is empty
+        return T(); // Return default value if the heap is empty
     }
 
-    char removeMax() {
+    T removeMax() {
         if (heapSize >= 1) {
-            char max = arr[1];
+            T max = arr[1];
             arr[1] = arr[heapSize];
             heapSize--;
             heapfy();
             return max;
         }
-        return '\0';
+        return T();
     }
 
     int getSize() {
@@ -83,7 +84,7 @@ int main() {
 
     cin >> maxSize >> numQueries;
 
-    MaxHeap heap(maxSize);
+    MaxHeap<char> heap(maxSize);
 
     for (int i = 0; i < numQueries; i++) {
         cin >> query;

@@ -35,6 +35,7 @@ private:
     }
 
     Node* rightRotate(Node* root){
+        //ponteiros auxiliares
         Node* left = root->left;
         Node* leftRight = left->right;
 
@@ -42,6 +43,7 @@ private:
         left->right = root;
         root->left = leftRight;
 
+        //atualizar alturas
         root->height = max(height(root->left), height(root->right)) + 1;
         left->height = max(height(left->left), height(left->right)) + 1;
 
@@ -65,10 +67,14 @@ private:
     }
 
     Node* insertHelp(Node* root, int key){
+        
+        //check if root is null 
         if(root == nullptr){
+            size++;
             return new Node(key);
         }
 
+        //inserir na subarvore esquerda ou direita de acordo com o valor do nó
         if(root->key > key){
             root->left = insertHelp(root->left, key);
         }
@@ -76,9 +82,13 @@ private:
             root->right = insertHelp(root->right, key);
         }
 
+        //atualizar a altura do nó
         root->height = 1 + max(height(root->left), height(root->right));
+        
+        //obter o fator de balanceamento do nó
         int balance = getBalance(root);
-
+        
+        // possiveis rotacoes
         if(balance < -1 && key >= root->right->key){
             return leftRotate(root);
         }
