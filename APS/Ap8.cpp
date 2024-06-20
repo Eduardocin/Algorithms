@@ -21,6 +21,7 @@ private:
     };
 
     Node* root;
+    int size;
 
     //obter a altura de um nó
     int height(Node* root){
