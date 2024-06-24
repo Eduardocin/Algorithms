@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -11,9 +12,8 @@ private:
         Node* left;
         Node* right;
         int height;
-        int size;
 
-        Node(K key) : key(key), left(nullptr), right(nullptr), height(0), size(1){}
+        Node(K key) : key(key), left(nullptr), right(nullptr), height(0) {}
         ~Node() {
             delete left;
             delete right;
@@ -21,13 +21,9 @@ private:
     };
 
     Node* root;
+    vector<K> keys; 
 
 
-    int size(Node* node) {
-        if (node == nullptr) return 0;
-        return node->size;
-    }
-    
     int height(Node* node) {
         if (node == nullptr) return -1;
         return node->height;
@@ -48,10 +44,6 @@ private:
         root->height = 1 + max(height(root->left), height(root->right));
         left->height = 1 + max(height(left->left), height(left->right));
 
-        root->size = 1 + size(root->left) + size(root->right);
-        left->size = 1 + size(left->left) + size(left->right);
-
-
         return left;
     }
 
@@ -65,14 +57,12 @@ private:
         root->height = 1 + max(height(root->left), height(root->right));
         right->height = 1 + max(height(right->left), height(right->right));
 
-        root->size = 1 + size(root->left) + size(root->right);
-        right->si4ze = 1 + size(right->left) + size(right->right);
-
         return right;
     }
 
     Node* insertHelp(Node* node, int key) {
         if (node == nullptr) {
+            keys.insert(lower_bound(keys.begin(), keys.end(), key), key);
             return new Node(key);
         }
 
@@ -83,7 +73,6 @@ private:
         }
 
         node->height = 1 + max(height(node->left), height(node->right));
-        node->size = 1 + size(node->left) + size(node->right);
 
         int balance = getBalance(node);
 
@@ -106,19 +95,14 @@ private:
         return node;
     }
 
-    int findIndexHelp(Node* node, K key) {
-        if (node == nullptr) {
+    int findIndexHelp(int key) {
+        auto it = lower_bound(keys.begin(), keys.end(), key);
+
+        if (it == keys.end() || *it != key) {
             return -1;
         }
 
-        if (key < node->key) {
-            return findIndexHelp(node->left, key);
-        } else if (key > node->key) {
-            int rightIndex = findIndexHelp(node->right, key);
-            return (rightIndex == -1) ? -1 : size(node->left) + 1 + rightIndex;
-        } else {
-            return size(node->left);
-        }
+        return it - keys.begin();
     }
 
 public:
@@ -133,7 +117,7 @@ public:
     }
 
     int findIndex(int key) {
-        return findIndexHelp(root, key);
+        return findIndexHelp(key);
     }
 };
 
