@@ -1,140 +1,151 @@
-#include <iostream>
 #include <vector>
+#include <queue>
+#include <string>
+#include <iostream>
 
 using namespace std;
 
-// Max heap
-template<typename T>
-class MaxHeap {
+#define UNVISITED 0
+#define VISITED 1
+
+class Graph {
 private:
-    vector<T> arr;
-    int heapSize;
-
-    void heapifyDown() {
-        for (int i = heapSize / 2; i >= 1; i--) {
-            int k = i;
-            T v = arr[k];
-            bool heap = false;
-
-            while (!heap && 2 * k <= heapSize) {
-                int j = 2 * k;
-                if (j < heapSize) {
-                    if (arr[j] < arr[j + 1]) {
-                        j++;
-                    }
-                }
-                if (v >= arr[j]) {
-                    heap = true;
-                } else {
-                    arr[k] = arr[j];
-                    k = j;
-                }
-            }
-            arr[k] = v;
-        }
-    }
-
-    void heapifyUp() {
-        int k = heapSize;
-        T v = arr[k];
-
-        while (k > 1 && v > arr[k / 2]) {
-            arr[k] = arr[k / 2];
-            k = k / 2;
-        }
-        arr[k] = v;
-    }
+    vector<vector<int>> graph;
+    int edgeCount; // Renamed to avoid conflict with numEdges() method
+    vector<int> visited;
 
 public:
-    MaxHeap() : heapSize(0) {
-        arr.push_back(0);
+    Graph(int numVertices){
+        graph.resize(numVertices, vector<int>(numVertices, 0));
+        visited.resize(numVertices, UNVISITED);
+        edgeCount = 0;
     }
 
-    ~MaxHeap() {}
-
-    T getMax() {
-        return arr[1];
-    }
-
-    int getSize() {
-        return heapSize;
-    }
-
-    void printHeap() {
-        for (int i = 1; i <= heapSize; i++) {
-            cout << arr[i] << " ";
+    void addEdge(int i, int j){
+        if (graph[i][j] == 0) {
+            edgeCount++;
         }
-        cout << endl;
+        graph[i][j] = 1;
+        graph[j][i] = 1;
     }
 
-    T deleteMax() {
-        T max = arr[1];
-
-        arr[1] = arr[heapSize];
-        arr[heapSize] = max;
-        heapSize--;
-        heapifyDown();
-        return max;
+    void delEdge(int i, int j){
+        if (graph[i][j] == 1) {
+            edgeCount--;
+        }
+        graph[i][j] = 0;
+        graph[j][i] = 0;
     }
 
-    void heapsort() {
-        int initialSize = heapSize;
-        for (int i = heapSize; i >= 1; i--) {
-            arr[i] = deleteMax();
+    int numVertices(){
+        return graph.size();
+    }
 
-            if (heapSize > 0) {
-                printHeap();
+    int numEdges(){
+        return edgeCount;
+    }
+
+    int first(int v){
+        for (int i = 0; i < numVertices(); i++) {
+            if (graph[v][i] == 1) {
+                return i;
             }
         }
-        heapSize = initialSize;
+        return numVertices();
     }
 
-    void printInverse() {
-        for (int i = heapSize; i >= 1; i--) {
-            cout << arr[i] << " ";
+    int next(int v, int w){
+        for (int i = w + 1; i < numVertices(); i++) {
+            if (graph[v][i] == 1) {
+                return i;
+            }
         }
-        cout << endl;
+        return numVertices();
     }
 
-    void insert(T value) {
-        arr.push_back(value);
-        heapSize++;
-        heapifyUp();
+    bool isEdge(int i, int j){
+        return graph[i][j] == 1;
+    }
+
+    void setMark(int v, int value){
+        visited[v] = value;
+    }
+
+    int getMark(int v){
+        return visited[v];
+    }
+
+    void resetVisited(){
+        fill(visited.begin(), visited.end(), UNVISITED);
+    }
+
+    void preVisit(int v){
+        cout << v << " ";
+    }
+
+    void posVisit(int v){
+        cout << v << " ";
+    }
+
+    void DFS(int start){
+        preVisit(start);
+        setMark(start, VISITED);
+        int w = first(start);
+        while (w < numVertices()) {
+            if (getMark(w) == UNVISITED) {
+                DFS(w);
+            }
+            w = next(start, w);
+        }
+    }
+
+    void BFS(int start){
+        queue<int> Q;
+        Q.push(start);
+        setMark(start, VISITED);
+        while (!Q.empty()) {
+            int v = Q.front();
+            Q.pop();
+            preVisit(v);
+            int w = first(v);
+            while (w < numVertices()) {
+                if (getMark(w) == UNVISITED) {
+                    setMark(w, VISITED);
+                    Q.push(w);
+                }
+                w = next(v, w);
+            }
+        }
+    }
+
+    void graphTraverse(const string& type, int start){
+        if (type == "bfs") {
+            resetVisited();
+            for (int v = start; v < graph.size(); v++) {
+                if (getMark(v) == UNVISITED) {
+                    BFS(v);
+                }
+            }
+        } else if (type == "dfs") {
+            resetVisited();
+            for (int v = start; v < graph.size(); v++) {
+                if (getMark(v) == UNVISITED) {
+                    DFS(v);
+                }
+            }
+        }
     }
 };
 
 int main() {
-    int tam_heap, numcasos;
-    cin >> tam_heap >> numcasos; // Read number of test cases
-
-    MaxHeap<char>* heap = new MaxHeap<char>();
-
-    for (int i = 0; i < numcasos; i++) {
-        string query;
-        cin >> query;
-
-        if (query == "insert") {
-            char value;
-            cin >> value;
-            if (heap->getSize() == tam_heap) {
-                cout << "Tamanho máximo atingido!" << endl;
-            } else {
-                heap->insert(value);
-            }
-        } else if (query == "remove") {
-            if (heap->getSize() == 0) {
-                cout << "Heap vazia!" << endl;
-            } else {
-                heap->deleteMax();
-            }
-        } else if (query == "max") {
-            if (heap->getSize() == 0) {
-                cout << "Não há elemento no topo." << endl;
-            } else {
-                cout << heap->getMax() << endl;
-            }
-        }
-    }
-    delete heap;
+    Graph g(5);
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 3);
+    g.addEdge(1, 4);
+    
+    string type = "dfs";
+    g.graphTraverse(type, 0);
+    
     return 0;
 }
