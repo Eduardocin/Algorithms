@@ -9,65 +9,50 @@ using namespace std;
 
 class Graph {
 private:
-    vector<vector<int>> graph;
+    vector<vector<int>> adjList;
     int numEdge;
     vector<int> visited;
 
 public:
     // Constructor to initialize the graph with a given number of vertices
     Graph(int numVertices) {
-        graph.resize(numVertices, vector<int>(numVertices, 0));
+        adjList.resize(numVertices);
         visited.resize(numVertices, UNVISITED);
         numEdge = 0;
     }
 
 
     int numVertices() {
-        return graph.size();
+        return adjList.size();
     }
 
-    int numEdges() {
-        return numEdge;
-    }
     // Function to get the first adjacent vertex of a given vertex
     int first(int v) {
-        for (int i = 0; i < numVertices(); i++) {
-            if (graph[v][i] != 0) {
-                return i;
-            }
+        if (!adjList[v].empty()) {
+            return adjList[v][0]; // Returns the first adjacent vertex
         }
-        return numVertices();
+        return numVertices();// Returns the size of adjacency list if no adjacent vertices
     }
 
-    // Function to get the next adjacent vertex of a given vertex after a given vertex
+        // Function to get the next adjacent vertex of a given vertex after a given vertex
     int next(int v, int w) {
-        for (int i = w + 1; i < numVertices(); i++) {
-            if (graph[v][i] != 0) {
-                return i;
-            }
+        auto it = find(adjList[v].begin(), adjList[v].end(), w);
+        
+        if (it != adjList[v].end() && ++it != adjList[v].end()) {
+            return *it; // Retorna o próximo vértice adjacente
         }
-        return numVertices();
-    }
-
-    bool isEdge(int u, int v) {
-        return graph[u][v]!= 0;
+        return numVertices();// Returns the size of adjacency list if no adjacent vertices
     }
 
     // Function to add an edge to the graph
     void addEdge(int u, int v) {
-        if (graph[u][v] == 0) {
-            numEdge++;
-        }
-        graph[u][v] = 1;
-        graph[v][u] = 1; // Assuming an undirected graph
-    }
+        auto it_u = lower_bound(adjList[u].begin(), adjList[u].end(), v);
+        adjList[u].insert(it_u, v);
 
-    void delEdge(int u, int v) {
-        if(graph[u][v] != 0) {
-            numEdge--;
-        }
-        graph[u][v] = 0;
-        graph[v][u] = 0; // Assuming an undirected graph
+        auto it_v = lower_bound(adjList[v].begin(), adjList[v].end(), u);
+        adjList[v].insert(it_v, u);
+
+        numEdge++;
     }
 
     // Function to set the mark of a vertex
@@ -85,18 +70,12 @@ public:
         cout << v << " ";
     }
 
-    // Post-visit action
-    void posVisit(int v) {
-        cout << v << " ";
-    }
-
     // Depth-First Search (DFS) algorithm
-    // aplications finding the connected components
     void DFS(int start) {
         preVisit(start);
         setMark(start, VISITED);
         int w = first(start);
-        while (w < graph.size()) {
+        while(w < numVertices()) {
             if (getMark(w) == UNVISITED) {
                 DFS(w);
             }
@@ -105,7 +84,6 @@ public:
     }
 
     // Breadth-First Search (BFS) algorithm
-    // aplications finding the shortest path
     void BFS(int start) {
         queue<int> Q;
         Q.push(start);
@@ -115,7 +93,9 @@ public:
             Q.pop();
             preVisit(v);
             int w = first(v);
-            while (w < numVertices()) {
+
+            // Visit each adjacent vertex in sorted order
+            while(w < numVertices()) {
                 if (getMark(w) == UNVISITED) {
                     setMark(w, VISITED);
                     Q.push(w);
@@ -125,24 +105,25 @@ public:
         }
     }
 
-    // Traverse the graph using both BFS and DFS
+    // Traverse the graph using either BFS or DFS
     void graphTraverse(string type, int start) {
-        
-        if(type == "bfs") {
-            resetVisited();
-            for (int v = start; v < graph.size(); v++) {
-                if (getMark(v) == UNVISITED) {
-                    BFS(v);
-                }
-            }
-        } else if(type == "dfs") {
-            resetVisited();
-            for (int v = start; v < graph.size(); v++) {
-                if (getMark(v) == UNVISITED) {
+        resetVisited();
+
+
+        if (type == "dfs") {
+            for(int v = start; v < numVertices(); v++){
+                if(getMark(v) == UNVISITED){
                     DFS(v);
                 }
             }
+        } else if (type == "bfs") {
+            for(int v = start; v < numVertices(); v++){
+                if(getMark(v) == UNVISITED){
+                    BFS(v);
+                }
+            }
         }
+        cout << endl; // Added to separate outputs of different traversals
     }
 
     // Reset visited array
@@ -168,14 +149,12 @@ int main() {
             int v;
             cin >> v;
             g.graphTraverse("bfs", v);
-            cout << endl;
         } else if (command == "DFS") {
             int v;
             cin >> v;
             g.graphTraverse("dfs", v);
-            cout << endl;
-            }
         }
+    }
 
     return 0;
 }
