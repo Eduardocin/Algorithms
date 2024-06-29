@@ -26,23 +26,23 @@ public:
         return adjList.size();
     }
 
-    // Function to get the first adjacent vertex of a given vertex
-    int first(int v) {
-        if (!adjList[v].empty()) {
-            return adjList[v][0]; // Returns the first adjacent vertex
-        }
-        return numVertices();// Returns the size of adjacency list if no adjacent vertices
-    }
+    // // Function to get the first adjacent vertex of a given vertex
+    // int first(int v) {
+    //     if (!adjList[v].empty()) {
+    //         return adjList[v][0]; // Returns the first adjacent vertex
+    //     }
+    //     return numVertices();// Returns the size of adjacency list if no adjacent vertices
+    // }
 
-        // Function to get the next adjacent vertex of a given vertex after a given vertex
-    int next(int v, int w) {
-        auto it = find(adjList[v].begin(), adjList[v].end(), w);
+    //     // Function to get the next adjacent vertex of a given vertex after a given vertex
+    // int next(int v, int w) {
+    //     auto it = find(adjList[v].begin(), adjList[v].end(), w);
         
-        if (it != adjList[v].end() && ++it != adjList[v].end()) {
-            return *it; // Retorna o próximo vértice adjacente
-        }
-        return numVertices();// Returns the size of adjacency list if no adjacent vertices
-    }
+    //     if (it != adjList[v].end() && ++it != adjList[v].end()) {
+    //         return *it; // Retorna o próximo vértice adjacente
+    //     }
+    //     return numVertices();// Returns the size of adjacency list if no adjacent vertices
+    // }
 
     // Function to add an edge to the graph
     void addEdge(int u, int v) {
@@ -74,12 +74,11 @@ public:
     void DFS(int start) {
         preVisit(start);
         setMark(start, VISITED);
-        int w = first(start);
-        while(w < numVertices()) {
+        
+        for(auto w : adjList[start]){
             if (getMark(w) == UNVISITED) {
                 DFS(w);
             }
-            w = next(start, w);
         }
     }
 
@@ -92,15 +91,11 @@ public:
             int v = Q.front();
             Q.pop();
             preVisit(v);
-            int w = first(v);
-
-            // Visit each adjacent vertex in sorted order
-            while(w < numVertices()) {
-                if (getMark(w) == UNVISITED) {
-                    setMark(w, VISITED);
-                    Q.push(w);
+            for(auto i : adjList[v]){
+                if (getMark(i) == UNVISITED) {
+                    setMark(i, VISITED);
+                    Q.push(i);
                 }
-                w = next(v, w);
             }
         }
     }
@@ -111,13 +106,15 @@ public:
 
 
         if (type == "dfs") {
-            for(int v = start; v < numVertices(); v++){
+            DFS(start);
+            for(int v = 0; v < numVertices(); v++){
                 if(getMark(v) == UNVISITED){
                     DFS(v);
                 }
             }
         } else if (type == "bfs") {
-            for(int v = start; v < numVertices(); v++){
+            BFS(start);
+            for(int v = 0; v < numVertices(); v++){
                 if(getMark(v) == UNVISITED){
                     BFS(v);
                 }
