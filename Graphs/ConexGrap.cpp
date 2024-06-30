@@ -31,8 +31,9 @@ public:
     }
 
     void CheckConnected(int value){
-        if(value == 1){
+        if(value >= 1){
             cout << "Connected" << endl;
+            cout << "number of components: " << value << endl;
         }
         else{
             cout << "Not Connected" << endl;

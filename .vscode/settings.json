@@ -69,7 +69,8 @@
         "xhash": "cpp",
         "*.rmd": "markdown",
         "forward_list": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "span": "cpp"
     },
     "cmake.configureOnOpen": false
 }

@@ -1,77 +1,95 @@
 #include <iostream>
 #include <vector>
 #include <stack>
-
+#include <algorithm>
 using namespace std;
 
-class Graph {
+class Graph{
 private:
     vector<vector<int>> adjList;
+    int numEdges;
     vector<int> visited;
-    stack<int> topoOrder; // Pilha para armazenar a ordenação topológica
 
 public:
-    Graph(int n) {
-        adjList.resize(n);
-        visited.assign(n, 0);
+    Graph(int numNodes): adjList(numNodes), numEdges(0), visited(numNodes, 0){}
+
+
+
+
+    bool checkEdge(int s,  int v){
+        return (adjList[s].end()!= find(adjList[s].begin(), adjList[s].end(), v));
     }
 
-    void addEdge(int u, int v) {
-        adjList[u].push_back(v);
+    //add a edge to a DAG
+    void addEdge(int s, int v){
+        if(checkEdge(s, v)) return;
+
+        adjList[s].emplace_back(v);
+        numEdges++;
+    }
+    
+    void delEdge(int s, int v){
+        
+        if(!checkEdge(s, v)) return;
+
+        // criar um ponteiro para o elemento a ser removido
+        auto it = find(adjList[s].begin(), adjList[s].end(), v);
+        adjList[s].erase(it);
+        numEdges--;
     }
 
-    void dfs(int v) {
-        visited[v] = 1; // Marca o vértice como visitado
+    void setMark(int v, int mark){
+        visited[v] = mark;
+    }
 
-        // Para cada vértice adjacente não visitado, execute DFS recursivamente
-        for (int u : adjList[v]) {
-            if (visited[u] == 0) {
-                dfs(u);
+    void topoSort(int v, stack<int>& stk){
+
+        setMark(v, 1);
+        for(int neighbour : adjList[v]){
+            if(visited[neighbour] == 0){
+                topoSort(neighbour, stk);
             }
         }
-
-        // Após visitar todos os vizinhos de v, empilhe v
-        topoOrder.push(v);
+        stk.push(v);
     }
 
-    vector<int> topologicalSort() {
-        for (int v = 0; v < adjList.size(); ++v) {
-            if (visited[v] == 0) {
-                dfs(v); // Chama o DFS para cada vértice não visitado
+    void graphTraverse(string command , stack<int>& stk){
+        //preencher o vetor de visitados
+        for(size_t i = 0; i < visited.size(); i++){
+            visited[i] = 0;
+        }
+
+
+        if(command == "topoSort"){
+            //percorrer o grafo
+            for(size_t i = 0; i < adjList.size(); i++){
+                if(visited[i] == 0){
+                    topoSort(i, stk);
+                }
             }
         }
-
-        // Constrói o vetor de saída a partir da pilha (ordem reversa da pilha)
-        vector<int> result;
-        while (!topoOrder.empty()) {
-            result.push_back(topoOrder.top());
-            topoOrder.pop();
-        }
-
-        return result;
     }
 };
 
-int main() {
-    int n, m;
-    cin >> n >> m;
 
-    Graph graph(n);
+int main(){
+    int numNodes, numEdges;
+    cin >> numNodes >> numEdges;
+    Graph g(numNodes);
 
-    for (int i = 0; i < m; ++i) {
-        int u, v;
-        cin >> u >> v;
-        graph.addEdge(u, v);
+    for(int i = 0; i < numEdges; i++){
+        int sourc, dest;
+        cin >> sourc >> dest;
+        g.addEdge(sourc, dest); 
     }
 
-    vector<int> topoOrder = graph.topologicalSort();
+    stack<int> stk;
+    g.graphTraverse("topoSort", stk);
 
-    // Imprime a ordenação topológica
-    for (int i = 0; i < topoOrder.size(); ++i) {
-        cout << topoOrder[i];
-        if (i < topoOrder.size() - 1) {
-            cout << " ";
-        }
+    // print topological sort
+    while(!stk.empty()){
+        cout << stk.top() << " ";
+        stk.pop();
     }
     cout << endl;
 

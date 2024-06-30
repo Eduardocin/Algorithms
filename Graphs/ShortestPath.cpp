@@ -5,6 +5,7 @@
 #include <stack>
 using namespace std;
 
+
 class Graph {
 private:
     vector<vector<int>> adj;
@@ -13,17 +14,17 @@ private:
     vector<int> Path;
 
 public:
-    Graph(int numNodes) : adj(numNodes), numEdges(0), Mark(numNodes), Path(numNodes,-1){}
+    Graph(int numNodes) : adj(numNodes), numEdges(0), Mark(numNodes), Path(numNodes, -1) {}
 
     void setMark(int u, int v) {
         Mark[u] = v;
     }
 
-    int numNodes() {
+    int numNodes() const {
         return adj.size();
     }
 
-    int NumEdges() {
+    int NumEdges() const {
         return numEdges;
     }
 
@@ -43,11 +44,10 @@ public:
         }
     }
 
-    void ShortestPath(int start, int target) {
+    void ShortestPath(const int& start, const int& target) {
         queue<int> q;
         q.push(start);
         setMark(start, 1);
-
 
         while (!q.empty()) {
             int v = q.front();
@@ -66,16 +66,19 @@ public:
         }
     }
 
-    void printPath(int start, int target) const {
+    void printPath(const int& start, const int& target) const {
+        //define a stack to store the path from target to start.
         stack<int> s;
         int current = target;
 
+        //find the path from target to start
         while (current != start) {
             s.push(current);
             current = Path[current];
         }
         s.push(start);
 
+        //print the path from start to target
         while (!s.empty()) {
             cout << s.top() << " ";
             s.pop();
@@ -83,26 +86,24 @@ public:
         cout << endl;
     }
 
-    void graphTraverse(int start, int target) {
-        
+    void graphTraverse(const int& start, const int& target) {
         for (size_t i = 0; i < Mark.size(); i++) {
             setMark(i, 0);
         }
-        for(size_t i = 0; i < Path.size(); i++) {
+        for (size_t i = 0; i < Path.size(); i++) {
             Path[i] = -1;
         }
 
         ShortestPath(start, target);
 
-        //cheack if there is a path
+        //check if there is a path
         if (Mark[target] == 0) {
             cout << "There is no path from " << start << " to " << target << endl;
             return;
         }
-    
+
         cout << "Shortest path from " << start << " to " << target << ": ";
         printPath(start, target);
-        
     }
 };
 

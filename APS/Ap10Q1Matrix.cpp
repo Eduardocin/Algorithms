@@ -1,178 +1,149 @@
-#include <iostream>
-#include <vector>
-#include <queue>
+#include <iostream> // Include the input-output stream library for printing and reading
+#include <vector> // Include the vector library for using the vector container
+#include <string> // Include the string library for using the string class
+#include <queue> // Include the queue library for using the queue container
 
-using namespace std;
+using namespace std; // Use the standard namespace
 
-#define UNVISITED 0
-#define VISITED 1
-
+// Define the Graph class
 class Graph {
 private:
-    vector<vector<int>> graph;
-    int numEdge;
-    vector<int> visited;
+    vector<vector<int>> graph; // Adjacency matrix representation of the graph
+    int numEdges; // Number of edges in the graph
+    vector<int> visited; // Track visited nodes
 
 public:
-    // Constructor to initialize the graph with a given number of vertices
-    Graph(int numVertices) {
-        graph.resize(numVertices, vector<int>(numVertices, 0));
-        visited.resize(numVertices, UNVISITED);
-        numEdge = 0;
+    // Constructor to initialize the graph with a given number of nodes
+    Graph(int Nodes) {
+        graph.resize(Nodes, vector<int>(Nodes, 0)); // Initialize adjacency matrix with 0s
+        numEdges = 0; // Initialize number of edges to 0
+        visited.resize(Nodes, 0); // Initialize visited vector with 0s
     }
 
-
-    int numVertices() {
+    // Return the number of nodes in the graph
+    int numNodes() {
         return graph.size();
     }
 
-    // Function to get the first adjacent vertex of a given vertex
+    // Find the first neighbor of a given node v
     int first(int v) {
-        for (int i = 0; i < numVertices(); i++) {
+        for (int i = 0; i < numNodes(); i++) {
             if (graph[v][i] != 0) {
-                return i;
+                return i; // Return the first neighbor found
             }
         }
-        return numVertices();
+        return numNodes(); // Return numNodes() if no neighbor is found
     }
 
-    // Function to get the next adjacent vertex of a given vertex after a given vertex
+    // Find the next neighbor of a given node v after node w
     int next(int v, int w) {
-        for (int i = w + 1; i < numVertices(); i++) {
+        for (int i = w + 1; i < numNodes(); i++) {
             if (graph[v][i] != 0) {
-                return i;
+                return i; // Return the next neighbor found
             }
         }
-        return numVertices();
+        return numNodes(); // Return numNodes() if no neighbor is found
     }
 
-    bool isEdge(int u, int v) {
-        return graph[u][v]!= 0;
-    }
-
-    // Function to add an edge to the graph
-    void addEdge(int u, int v) {
-        if (graph[u][v] == 0) {
-            numEdge++;
-        }
-        graph[u][v] = 1;
-        graph[v][u] = 1; // Assuming an undirected graph
-    }
-
-    void delEdge(int u, int v) {
-        if(graph[u][v] != 0) {
-            numEdge--;
-        }
-        graph[u][v] = 0;
-        graph[v][u] = 0; // Assuming an undirected graph
-    }
-
-    // Function to set the mark of a vertex
-    void setMark(int v, int value) {
-        visited[v] = value;
-    }
-
-    // Function to get the mark of a vertex
-    int getMark(int v) {
-        return visited[v];
-    }
-
-    // Pre-visit action
-    void preVisit(int v) {
-        cout << v << " ";
-    }
-
-    // Post-visit action
-    void posVisit(int v) {
-        cout << v << " ";
-    }
-
-    // Depth-First Search (DFS) algorithm
-    // aplications finding the connected components
-    void DFS(int start) {
-        preVisit(start);
-        setMark(start, VISITED);
-        int w = first(start);
-        while (w < graph.size()) {
-            if (getMark(w) == UNVISITED) {
-                DFS(w);
-            }
-            w = next(start, w);
+    // Set an edge between two nodes in the graph
+    void setEdge(int sourc, int dest) {
+        if (graph[sourc][dest] == 0) {
+            graph[sourc][dest] = 1; // Set the edge in the adjacency matrix
+            graph[dest][sourc] = 1; // Set the reverse edge (for undirected graph)
+            numEdges++; // Increment the number of edges
         }
     }
 
-    // Breadth-First Search (BFS) algorithm
-    // aplications finding the shortest path
+    // Mark a node as visited
+    void setMark(int v, int mark) {
+        visited[v] = mark; // Set the visited mark for node v
+    }
+
+    // Breadth-First Search (BFS) traversal starting from a given node
     void BFS(int start) {
-        queue<int> Q;
-        Q.push(start);
-        setMark(start, VISITED);
-        while (!Q.empty()) {
-            int v = Q.front();
-            Q.pop();
-            preVisit(v);
-            int w = first(v);
-            while (w < numVertices()) {
-                if (getMark(w) == UNVISITED) {
-                    setMark(w, VISITED);
-                    Q.push(w);
+        queue<int> q; // Create a queue for BFS
+        q.push(start); // Push the start node to the queue
+        setMark(start, 1); // Mark the start node as visited
+
+        while (!q.empty()) {
+            int v = q.front(); // Get the front node from the queue
+            q.pop(); // Remove the front node from the queue
+            cout << v << " "; // Print the current node
+            int w = first(v); // Find the first neighbor of the current node
+
+            while (w < numNodes()) {
+                if (visited[w] == 0) {
+                    setMark(w, 1); // Mark the neighbor as visited
+                    q.push(w); // Push the neighbor to the queue
                 }
-                w = next(v, w);
+                w = next(v, w); // Find the next neighbor
             }
         }
     }
 
-    // Traverse the graph using both BFS and DFS
-    void graphTraverse(string type, int start) {
-        
-        if(type == "bfs") {
-            resetVisited();
-            for (int v = start; v < graph.size(); v++) {
-                if (getMark(v) == UNVISITED) {
-                    BFS(v);
-                }
+    // Depth-First Search (DFS) traversal starting from a given node
+    void DFS(int start) {
+        cout << start << " "; // Print the current node
+        setMark(start, 1); // Mark the current node as visited
+        int w = first(start); // Find the first neighbor of the current node
+
+        while (w < numNodes()) {
+            if (visited[w] == 0) {
+                DFS(w); // Recursively call DFS for the neighbor
             }
-        } else if(type == "dfs") {
-            resetVisited();
-            for (int v = start; v < graph.size(); v++) {
-                if (getMark(v) == UNVISITED) {
-                    DFS(v);
-                }
-            }
+            w = next(start, w); // Find the next neighbor
         }
     }
 
-    // Reset visited array
-    void resetVisited() {
-        fill(visited.begin(), visited.end(), UNVISITED);
+    // General graph traversal method that can perform either BFS or DFS
+    void graphTraversal(string type, int start = 0) {
+        for (size_t i = 0; i < visited.size(); i++) {
+            setMark(i, 0); // Reset the visited marks
+        }
+
+        if (type == "BFS") {
+            for (int i = 0; i < numNodes(); i++) {
+                if (visited[i] == 0) {
+                    BFS(i); // Perform BFS starting from node i
+                }
+            }
+        }
+
+        if (type == "DFS") {
+            DFS(start); // Perform DFS starting from the given start node
+
+            for (int i = 0; i < numNodes(); i++) {
+                if (visited[i] == 0) {
+                    DFS(i); // Perform DFS for any unvisited nodes
+                }
+            }
+        }
     }
 };
 
 int main() {
-    int n, q;
-    cin >> n >> q;
-    Graph g(n);
+    int numVertices, numQueries, source, destination;
 
-    for (int i = 0; i < q; i++) {
-        string command;
-        cin >> command;
+    cin >> numVertices >> numQueries; // Read the number of vertices and queries
+    Graph g(numVertices); // Create a graph with the given number of vertices
 
-        if (command == "add") {
-            int u, v;
-            cin >> u >> v;
-            g.addEdge(u, v);
-        } else if (command == "BFS") {
-            int v;
-            cin >> v;
-            g.graphTraverse("bfs", v);
-            cout << endl;
-        } else if (command == "DFS") {
-            int v;
-            cin >> v;
-            g.graphTraverse("dfs", v);
-            cout << endl;
-            }
+    for (int i = 0; i < numQueries; i++) {
+        string type;
+        cin >> type; // Read the type of query
+
+        if (type == "add") {
+            cin >> source >> destination; // Read the source and destination nodes
+            g.setEdge(source, destination); // Add an edge between the nodes
+        } else if (type == "BFS") {
+            cin >> source; // Read the starting node for BFS
+            g.graphTraversal(type, source); // Perform BFS traversal
+            cout << endl; // Print a newline
+        } else if (type == "DFS") {
+            cin >> source; // Read the starting node for DFS
+            g.graphTraversal(type, source); // Perform DFS traversal
+            cout << endl; // Print a newline
         }
+    }
 
-    return 0;
+    return 0; // Return 0 to indicate successful execution
 }
