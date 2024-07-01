@@ -70,7 +70,9 @@
         "*.rmd": "markdown",
         "forward_list": "cpp",
         "valarray": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "bitset": "cpp",
+        "regex": "cpp"
     },
     "cmake.configureOnOpen": false
 }
