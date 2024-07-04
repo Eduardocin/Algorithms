@@ -86,6 +86,7 @@ public:
     void BFS(int start) {
         queue<int> Q;
         Q.push(start);
+        
         setMark(start, VISITED);
         while (!Q.empty()) {
             int v = Q.front();
