@@ -1,64 +1,51 @@
-//graph shortest path
 #include <iostream>
 #include <vector>
 #include <queue>
 #include <stack>
+#include <algorithm>
+
 using namespace std;
 
-
-class Graph {
+class Graph{
 private:
-    vector<vector<int>> adj;
-    int numEdges;
-    vector<int> Mark;
-    vector<int> Path;
+    vector<vector<int>> adjList;
+    int NumEdges;
+    vector<int> visited;
 
-public:
-    Graph(int numNodes) : adj(numNodes), numEdges(0), Mark(numNodes), Path(numNodes, -1) {}
+public: 
+    Graph(int numNodes): adjList(numNodes), NumEdges(0), visited(numNodes, 0){}
 
-    void setMark(int u, int v) {
-        Mark[u] = v;
+
+    void setEdge(int i, int j){
+        adjList[i].push_back(j);
+        adjList[j].push_back(i);
+        NumEdges++;
     }
 
-    int numNodes() const {
-        return adj.size();
+    void setMark(int node, int mark){
+        visited[node] = mark;
     }
 
-    int NumEdges() const {
-        return numEdges;
+    int getMark(int node){
+        return visited[node];
     }
 
-    void addEdge(int u, int v) {
-        adj[u].push_back(v);
-        adj[v].push_back(u);
-        numEdges++;
-    }
-
-    void printGraph() const {
-        for (size_t i = 0; i < adj.size(); i++) {
-            cout << i << ": ";
-            for (int neighbor : adj[i]) {
-                cout << neighbor << " ";
-            }
-            cout << endl;
-        }
-    }
-
-    void ShortestPath(const int& start, const int& target) {
+    void BFS(int startNode, int destNode, vector<int> &Path){
         queue<int> q;
-        q.push(start);
-        setMark(start, 1);
+        q.push(startNode);
+        setMark(startNode, 1);
 
-        while (!q.empty()) {
-            int v = q.front();
+        while(!q.empty()){
+            int node = q.front();
             q.pop();
 
-            for (int neighbor : adj[v]) {
-                if (Mark[neighbor] == 0) {
-                    setMark(neighbor, 1);
-                    Path[neighbor] = v;
-                    q.push(neighbor);
-                    if (neighbor == target) {
+            for(int w : adjList[node]){
+                if(getMark(w) == 0 )
+                {
+                    q.push(w);
+                    setMark(w, 1);
+                    Path[w] = node;
+                    if(w == destNode){
                         return;
                     }
                 }
@@ -66,61 +53,65 @@ public:
         }
     }
 
-    void printPath(const int& start, const int& target) const {
-        //define a stack to store the path from target to start.
-        stack<int> s;
-        int current = target;
-
-        //find the path from target to start
-        while (current != start) {
-            s.push(current);
-            current = Path[current];
-        }
-        s.push(start);
-
-        //print the path from start to target
-        while (!s.empty()) {
-            cout << s.top() << " ";
-            s.pop();
-        }
-        cout << endl;
+    int getNode(){
+        return adjList.size();
     }
 
-    void graphTraverse(const int& start, const int& target) {
-        for (size_t i = 0; i < Mark.size(); i++) {
+
+    void ShortestPath(int start, int destNode){
+        stack<int> s;
+        vector<int> Path(getNode(), -1);
+        
+        for(int i =0; i < getNode(); i++){
             setMark(i, 0);
-        }
-        for (size_t i = 0; i < Path.size(); i++) {
             Path[i] = -1;
         }
 
-        ShortestPath(start, target);
+        BFS(start, destNode, Path);
 
-        //check if there is a path
-        if (Mark[target] == 0) {
-            cout << "There is no path from " << start << " to " << target << endl;
-            return;
+        //check if path exists
+        if(getMark(destNode) == 0){
+            cout << -1 << endl;
+        }
+        else{
+            int node = destNode;
+            while(node != -1){
+                s.push(node);
+                node = Path[node];
+            }
+
+            while(!s.empty()){
+                cout << s.top();
+                s.pop();
+                if(!s.empty()){
+                    cout << " -> ";
+                }
+            }
+            cout << endl;
         }
 
-        cout << "Shortest path from " << start << " to " << target << ": ";
-        printPath(start, target);
+
+
     }
+
+
 };
+
 
 int main() {
     Graph g(6);
-    g.addEdge(0, 2);
-    g.addEdge(0, 4);
-    g.addEdge(1, 2);
-    g.addEdge(1, 5);
-    g.addEdge(2, 3);
-    g.addEdge(2, 5);
-    g.addEdge(3, 5);
-    g.addEdge(4, 5);
+    g.setEdge(0, 2);
+    g.setEdge(0, 4);
+    g.setEdge(1, 2);
+    g.setEdge(1, 5);
+    g.setEdge(2, 3);
+    g.setEdge(2, 5);
+    g.setEdge(3, 5);
+    g.setEdge(4, 5);
 
     int start = 0;
     int target = 1;
-    g.graphTraverse(start, target);
+    g.ShortestPath(start, target);
 
     return 0;
 }
