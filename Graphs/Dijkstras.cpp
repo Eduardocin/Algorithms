@@ -5,37 +5,56 @@ using namespace std;
 class Graph {
 private:
     vector<vector<pair<int, int>>> adjList; // pair<neighbor, weight>
-    int V;
     vector<int> visited;
 
 public:
-    Graph(int N) : V(N), adjList(N), visited(N, 0) {}
+    Graph(int N) : adjList(N), visited(N, 0) {}
 
     void setEdge(int u, int v, int w) {
         adjList[u].emplace_back(v, w);
         adjList[v].emplace_back(u, w);
     }
+    
+    int getSize(){
+        return adjList.size();
+    }
 
-    void Dijkstra(int src, vector<int>& D) {
-        D.assign(V, INT_MAX);
-        D[src] = 0;
-        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-        pq.emplace(0, src);
+    void Dijkstra(int initalNode, vector<int>& D, vector<int>& P) {
 
-        while (!pq.empty()) {
-            int dist = pq.top().first;
-            int u = pq.top().second;
-            pq.pop();
+        // Initialize distances and parents
+        // for(int i = 0; i < getSize(); ++i){
+        //     visited[i] = 0; // UNVISITED
+        //     P[i] = -1;
+        //     D[i] = INT_MAX;
+        // }
 
-            if (dist > D[u]) continue;
+        // Priority queue: (acumulate cost, vertex, previous vertex)
+        priority_queue<pair<int, pair<int, int>>, vector<pair<int, pair<int, int>>>, greater<pair<int, pair<int, int>>>> pq; // pair<cost, pair<vertex, previous vertex>>
+        
+        // Start from the source
+        pq.emplace(0, make_pair(initalNode, initalNode));
+        D[initalNode] = 0; // distance to the startNode
 
-            for (auto& neighbor : adjList[u]) {
-                int v = neighbor.first;
+        for(int i = 0; i < getSize(); ++i){
+            int p, v;
+            do {
+                if(pq.empty()) return;
+                auto current = pq.top();
+                pq.pop();
+                p = current.second.second;
+                v = current.second.first;
+
+            } while(visited[v] == 1); // Repeat until an unvisited vertex is found
+            
+            visited[v] = 1; // Mark the vertex as visited
+            P[v] = p; // Update parent
+
+            for(auto& neighbor : adjList[v]){
+                int w = neighbor.first;
                 int weight = neighbor.second;
-
-                if (D[u] + weight < D[v]) {
-                    D[v] = D[u] + weight;
-                    pq.emplace(D[v], v);
+                if(visited[w] == 0 && D[w] > D[v] + weight){ // Update distance if shorter path is found
+                    D[w] = D[v] + weight;
+                    pq.emplace(D[w], make_pair(w, v)); // Add to priority queue
                 }
             }
         }
@@ -43,21 +62,46 @@ public:
 };
 
 int main() {
-    Graph g(5);
-    g.setEdge(0, 1, 10);
-    g.setEdge(0, 4, 5);
-    g.setEdge(1, 2, 1);
-    g.setEdge(1, 4, 2);
-    g.setEdge(2, 3, 4);
-    g.setEdge(3, 4, 3);
-    g.setEdge(3, 0, 7);
+    int nodes, edges, initialNode;
+    cin >> nodes >> edges >> initialNode;
 
-    vector<int> distances;
-    g.Dijkstra(0, distances);
+    Graph graph(nodes);
 
-    for (int i = 0; i < distances.size(); ++i) {
-        cout << "Distance from 0 to " << i << " is " << distances[i] << endl;
+    for(int i = 0; i < edges; ++i){
+        int u, v, weight;
+        cin >> u >> v >> weight;
+        graph.setEdge(u, v, weight);
     }
+
+    vector<int> distances(nodes, INT_MAX);
+    vector<int> parents(nodes, -1);
+    graph.Dijkstra(initialNode, distances, parents);
+    
+    for(int i = 0; i < nodes; ++i){
+        cout << distances[i] << " ";
+    }
+    
+    cout << endl;
+    int targetNode = 2; // Node to which we want to find the path
+    stack<int> path;
+
+    //menor custo possível do caminho do nó inicial ao nó alvo
+    cout << "Shortest path cost from 0 to 2: " << distances[targetNode] << endl;
+    
+    while(targetNode!= initialNode){
+        path.push(targetNode);
+        targetNode = parents[targetNode];
+    }
+
+    cout << "Path from 0 to 2: ";
+    while (!path.empty()) {
+        cout << path.top() << " ";
+        path.pop();
+    }
+    cout << endl;
+
+
+
 
     return 0;
 }
