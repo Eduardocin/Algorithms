@@ -41,8 +41,8 @@ public:
                 if(pq.empty()) return;
                 auto current = pq.top();
                 pq.pop();
-                p = current.second.second;
-                v = current.second.first;
+                p = current.second.second; // previous verte
+                v = current.second.first; // current vertex
 
             } while(visited[v] == 1); // Repeat until an unvisited vertex is found
             
@@ -81,24 +81,24 @@ int main() {
         cout << distances[i] << " ";
     }
     
-    cout << endl;
-    int targetNode = 2; // Node to which we want to find the path
-    stack<int> path;
+    // cout << endl;
+    // int targetNode = 2; // Node to which we want to find the path
+    // stack<int> path;
 
-    //menor custo possível do caminho do nó inicial ao nó alvo
-    cout << "Shortest path cost from 0 to 2: " << distances[targetNode] << endl;
+    // //menor custo possível do caminho do nó inicial ao nó alvo
+    // cout << "Shortest path cost from 0 to 2: " << distances[targetNode] << endl;
     
-    while(targetNode!= initialNode){
-        path.push(targetNode);
-        targetNode = parents[targetNode];
-    }
+    // while(targetNode!= initialNode){
+    //     path.push(targetNode);
+    //     targetNode = parents[targetNode];
+    // }
 
-    cout << "Path from 0 to 2: ";
-    while (!path.empty()) {
-        cout << path.top() << " ";
-        path.pop();
-    }
-    cout << endl;
+    // cout << "Path from 0 to 2: ";
+    // while (!path.empty()) {
+    //     cout << path.top() << " ";
+    //     path.pop();
+    // }
+    // cout << endl;
 
 
 
