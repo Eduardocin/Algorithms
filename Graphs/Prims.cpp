@@ -21,38 +21,52 @@ public:
         return adjList.size();
     }
 
-    void Prim(vector<int>& dist, vector<int>& parent){
-        priority_queue<pair<int, pair<int,int>>, vector<pair<int, pair<int,int>>>, greater<pair<int, pair<int,int>>>> pq; //pair< weight, pair<current vertex , previous vertex>>
+void Prim(vector<int>& dist, vector<int>& parent){
+    // Define uma fila de prioridade mínima para armazenar pares de pesos e vértices.
+    priority_queue<pair<int, pair<int,int>>, vector<pair<int, pair<int,int>>>, greater<pair<int, pair<int,int>>>> pq; //pair<weight, pair<current vertex, previous vertex>>
 
-        pq.emplace(0, make_pair(0, 0));
-        dist[0] = 0;
+    // Inicializa a fila com o vértice inicial (0) e peso 0.
+    pq.emplace(0, make_pair(0, 0));
+    // Define a distância do vértice inicial para ele mesmo como 0.
+    dist[0] = 0;
 
-        for(int i = 0 ; i < getSize(); ++i){
-            int p, v;
-            do{
-                if(pq.empty()) return;
-                
-                auto temp = pq.top();
-                pq.pop();
-                p = temp.second.second; //previous vertex
-                v = temp.second.first; // current vertex
+    // Loop para iterar sobre todos os vértices.
+    for(int i = 0 ; i < getSize(); ++i){
+        int p, v;
+        do{
+            // Verifica se a fila está vazia. Se sim, retorna.
+            if(pq.empty()) return;
 
-            }while(visited[v] == 1);
+            // Remove o elemento com o menor peso da fila.
+            auto temp = pq.top();
+            pq.pop();
+            // Atualiza o vértice anterior e o vértice atual.
+            p = temp.second.second; // previous vertex
+            v = temp.second.first;  // current vertex
 
-            parent[v] = p;
-            visited[v] = 1;
+        }while(visited[v] == 1); // Repete até encontrar um vértice não visitado.
 
-            for(auto &it : adjList[v]){
-                int u = it.first;
-                int weight = it.second;
+        // Atualiza o pai do vértice atual.
+        parent[v] = p;
+        // Marca o vértice atual como visitado.
+        visited[v] = 1;
 
-                if(visited[u] == 0 && dist[u] > weight){
-                        dist[u] = weight;
-                        pq.emplace(weight, make_pair(u, v));
-                }
+        // Itera sobre todos os vizinhos do vértice atual.
+        for(auto &it : adjList[v]){
+            int u = it.first;
+            int weight = it.second;
+
+            // Verifica se o vizinho não foi visitado e se a nova distância é menor que a distância atual.
+            if(visited[u] == 0 && dist[u] > weight){
+                // Atualiza a distância do vizinho.
+                dist[u] = weight;
+                // Adiciona o vizinho à fila com a nova distância.
+                pq.emplace(weight, make_pair(u, v));
             }
         }
     }
+}
+
 
 
 
