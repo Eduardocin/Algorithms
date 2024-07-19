@@ -2,94 +2,83 @@
 
 using namespace std;
 
-class Graph{
+class Graph {
 private:
-    vector<list<pair<int, int>>> adjList; // <pair<vertex, weight>>
-    vector<int> visited;
+    unordered_map<string, list<pair<string, int>>> adjList; // <vertex<pair<adj vertex, weight>>>
+    unordered_map<string, bool> visited;
 
 public:
-    Graph(int numVertices): adjList(numVertices), visited(numVertices, 0) {}
+    Graph() {}
 
-    void setEdge(int u, int v, int w){
-        adjList[u].push_back({v, w});
-        adjList[v].push_back({u, w});
+    void setEdge(string u, string v, int w) {
+        adjList[u].push_back(make_pair(v, w));
+        adjList[v].push_back(make_pair(u, w));
     }
 
-    int getSize(){
-        return adjList.size();
+    void setVisited(string v) {
+        visited[v] = true;
     }
 
-    void setMark(int u, int mark){
-        visited[u] = mark;
+    bool getVisited(string v) {
+        return visited[v];
     }
 
-    int getMark(int u){
-        return visited[u];
-    }
+    void Prim(unordered_map<string, int>& MST, unordered_map<string, string>& parent) {
+        for (const auto& node : adjList) {
+            MST[node.first] = INT_MAX;
+            visited[node.first] = false;
+        }
 
-    void Prim(int start, vector<int>& dist, vector<int>& parent){
-        priority_queue<pair<int, pair<int, int>>, vector<pair<int, pair<int, int>>>, greater<pair<int, pair<int, int>>>> pq; // pair<weight, pair<vertex, parent>>
+        string start = adjList.begin()->first;
 
-        pq.emplace(0, make_pair(start, start));
-        dist[start] = 0;
+        priority_queue<pair<int, string>, vector<pair<int, string>>, greater<pair<int, string>>> pq;  //<pair<weight, vertex>>
 
-        for(int i = 0; i < getSize(); i++){
-            int p, v;
+        MST[start] = 0;
+        pq.emplace(0, start);
 
-            do{
-                if(pq.empty()){
-                    return;
-                }
+        while (!pq.empty()) {
+            string v = pq.top().second;
+            pq.pop();
 
-                auto current = pq.top();
-                pq.pop();
+            if (getVisited(v)) continue;
+            setVisited(v);
 
-                v = current.second.first;
-                p = current.second.second;
+            for (auto& edge : adjList[v]) {
+                string u = edge.first;
+                int weight = edge.second;
 
-            } while(getMark(v) == 1);
-
-            setMark(v, 1);
-            parent[v] = p;
-
-            for(auto& neighbour: adjList[v]){
-                int w = neighbour.first;
-                int weight = neighbour.second;
-
-                if(getMark(w) == 0 && dist[w] > weight){
-                    dist[w] = weight;
-                    pq.emplace(weight, make_pair(w, v));
+                if (!getVisited(u) && MST[u] > weight) {
+                    MST[u] = weight;
+                    parent[u] = v;
+                    pq.emplace(weight, u);
                 }
             }
         }
     }
 };
 
-int main(){
-    int numCities, numRoads;
+int main() {
+    string centro1, centro2;
+    int dist;
 
-    while(cin >> numCities >> numRoads && (numCities != 0 || numRoads != 0)) {
-        Graph g(numCities);
+    Graph g;
+    while (cin >> centro1 >> centro2 >> dist) {
+        g.setEdge(centro1, centro2, dist);
+    }
 
-        for(int i = 0; i < numRoads; i++){
-            int u, v, w;
-            cin >> u >> v >> w;
-            g.setEdge(u, v, w);
-        }
+    unordered_map<string, int> MST;
+    unordered_map<string, string> parent;
 
-        vector<int> dist(numCities, INT_MAX);
-        vector<int> parent(numCities, -1);
-        g.Prim(0, dist, parent);
+    g.Prim(MST, parent);
 
-            // Check if it's possible to travel between all cities
-        if(find(dist.begin(), dist.end(), INT_MAX) != dist.end()){
-            cout << "IMPOSSIBLE" << endl;
-        } else {
-            // Find minimum range  to travel between any two cities
-            int maxRange = *max_element(dist.begin(), dist.end());
-            cout << maxRange << endl;
+    int maxDist = 0;
+    for (const auto& dist : MST) {
+        if (dist.second != INT_MAX) {
+            maxDist = max(maxDist, dist.second);
         }
     }
+
+    cout << maxDist << endl;
 
     return 0;
 }

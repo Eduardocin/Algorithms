@@ -1,110 +1,100 @@
-#include <iostream>
-#include <vector>
-#include <list>
-#include <algorithm>
+#include <bits/stdc++.h>
 
 using namespace std;
 
-class Edge {
-public:
-    int u, v, weight;
-
-    Edge(int u, int v, int weight) : u(u), v(v), weight(weight) {}
-
-    bool operator<(const Edge& other) const {
-        return weight < other.weight;
-    }
-};
-
-class DisjointSet {
-public:
-    DisjointSet(int n) : parent(n), size(n, 1) {
-        for (int i = 0; i < n; ++i) {
-            parent[i] = i;
-            subsets[i].push_back(i);
-        }
-    }
-
-    int find(int u) {
-        return parent[u];
-    }
-
-    void unite(int u, int v) {
-        int rootU = find(u);
-        int rootV = find(v);
-        
-        if (rootU != rootV) {
-            // Always append the smaller list to the larger one
-            if (size[rootU] < size[rootV]) {
-                swap(rootU, rootV);
-            }
-
-            // Append the list of rootV to rootU
-            subsets[rootU].splice(subsets[rootU].end(), subsets[rootV]);
-
-            // Update the parent for all elements in rootV's list
-            for (int x : subsets[rootU]) {
-                parent[x] = rootU;
-            }
-
-            // Update the size
-            size[rootU] += size[rootV];
-        }
-    }
-
-private:
-    vector<int> parent;
-    vector<int> size;
-    vector<list<int>> subsets = vector<list<int>>(parent.size());
-};
-
 class Graph {
-public:
-    Graph(int n) : n(n) {}
+private:
+    struct DijointsSubsets {
+        vector<int> parent;
 
-    void addEdge(int u, int v, int weight) {
-        edges.emplace_back(u, v, weight);
+        DijointsSubsets(int n) {
+            parent.resize(n);
+            for (int i = 0; i < n; ++i) parent[i] = i;
+        }
+
+        int find(int curr) {
+            if (parent[curr] == curr) {
+                return curr;
+            }
+            parent[curr] = find(parent[curr]);
+            return parent[curr];
+        }
+
+        void unionSets(int a, int b) {
+            int root1 = find(a);
+            int root2 = find(b);
+            if (root1 != root2) {
+                parent[root2] = root1;
+            }
+        }
+    };
+
+    vector<vector<pair<int, int>>> adjList;
+
+public:
+    Graph(int V) : adjList(V) {}
+
+    void setEdge(int u, int v, int weight) {
+        adjList[u].push_back({v, weight});
+        adjList[v].push_back({u, weight});
     }
 
-    vector<Edge> kruskalMST() {
-        sort(edges.begin(), edges.end());
-        DisjointSet ds(n);
-        vector<Edge> mst;
+    void Kruskal() {
+        vector<tuple<int, int, int>> edges;
 
-        for (const auto& edge : edges) {
-            if (ds.find(edge.u) != ds.find(edge.v)) {
-                ds.unite(edge.u, edge.v);
-                mst.push_back(edge);
+        // Collect all edges
+        for (int i = 0; i < adjList.size(); i++) {
+            for (auto& edge : adjList[i]) {
+                if (i < edge.first) {
+                    edges.push_back(make_tuple(edge.second, i, edge.first));
+                }
             }
         }
 
-        return mst;
-    }
+        // Create a min-heap from the edges
+        auto heapBottomUp = [](vector<tuple<int, int, int>>& H) {
+            make_heap(H.begin(), H.end(), greater<tuple<int, int, int>>());
+        };
+        heapBottomUp(edges);
 
-    void printMST(const vector<Edge>& mst) const {
-        cout << "Edges in the MST:" << endl;
-        for (const auto& edge : mst) {
-            cout << edge.u << " - " << edge.v << " : " << edge.weight << endl;
+        // Create disjoint subsets
+        DijointsSubsets ds(adjList.size());
+        vector<tuple<int, int, int>> MSTEdges;
+
+        // Process edges in the min-heap
+        while (!edges.empty()) {
+            pop_heap(edges.begin(), edges.end(), greater<tuple<int, int, int>>());
+            auto [wt, v, u] = edges.back();
+            edges.pop_back();
+
+            if (ds.find(v) != ds.find(u)) {
+                ds.unionSets(v, u);
+                MSTEdges.push_back(make_tuple(wt, v, u));
+            }
         }
-    }
 
-private:
-    int n;
-    vector<Edge> edges;
+        // Find MST sum of weights
+        int MSTSum = 0;
+        for (auto& [wt, v, u] : MSTEdges) {
+            MSTSum += wt;
+        }
+        cout << MSTSum << endl;
+    }
 };
 
 int main() {
-    int n = 4; // Number of vertices
+    int n, m;
+    cin >> n >> m;
+
     Graph g(n);
 
-    g.addEdge(0, 1, 10);
-    g.addEdge(0, 2, 6);
-    g.addEdge(0, 3, 5);
-    g.addEdge(1, 3, 15);
-    g.addEdge(2, 3, 4);
+    for (int i = 0; i < m; ++i) {
+        int a, b, w;
+        cin >> a >> b >> w;
+        g.setEdge(a, b, w);
+    }
 
-    vector<Edge> mst = g.kruskalMST();
-    g.printMST(mst);
+    g.Kruskal();
 
     return 0;
 }
