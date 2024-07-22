@@ -34,7 +34,7 @@ void Prim(vector<int>& dist, vector<int>& parent){
     for(int i = 0 ; i < getSize(); ++i){
         int p, v;
         do{
-            // Verifica se a fila está vazia. Se sim, retorna.
+            // verífica se  a heap está vazia antes de acabar o loop. Se sim, o grafo é desconexo.
             if(pq.empty()) return;
 
             // Remove o elemento com o menor peso da fila.
@@ -46,9 +46,7 @@ void Prim(vector<int>& dist, vector<int>& parent){
 
         }while(visited[v] == 1); // Repete até encontrar um vértice não visitado.
 
-        // Atualiza o pai do vértice atual.
         parent[v] = p;
-        // Marca o vértice atual como visitado.
         visited[v] = 1;
 
         // Itera sobre todos os vizinhos do vértice atual.
@@ -58,9 +56,7 @@ void Prim(vector<int>& dist, vector<int>& parent){
 
             // Verifica se o vizinho não foi visitado e se a nova distância é menor que a distância atual.
             if(visited[u] == 0 && dist[u] > weight){
-                // Atualiza a distância do vizinho.
                 dist[u] = weight;
-                // Adiciona o vizinho à fila com a nova distância.
                 pq.emplace(weight, make_pair(u, v));
             }
         }

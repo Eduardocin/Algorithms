@@ -61,8 +61,10 @@ public:
         DijointsSubsets ds(adjList.size());
         vector<tuple<int, int, int>> MSTEdges;
 
+
+        int numMst = adjList.size();
         // Process edges in the min-heap
-        while (!edges.empty()) {
+        while (numMst > 1) {
             pop_heap(edges.begin(), edges.end(), greater<tuple<int, int, int>>());
             auto [wt, v, u] = edges.back();
             edges.pop_back();
@@ -70,6 +72,7 @@ public:
             if (ds.find(v) != ds.find(u)) {
                 ds.unionSets(v, u);
                 MSTEdges.push_back(make_tuple(wt, v, u));
+                --numMst;
             }
         }
 
