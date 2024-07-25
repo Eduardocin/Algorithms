@@ -1,0 +1,1 @@
+{"name":"Local: teste","url":"c:\\Users\\Eduar\\OneDrive\\Documentos\\GitHub\\C-pratice\\Lista8\\teste.cpp","tests":[{"id":1721791047462,"input":"10 4\n40 10 20 70 80 10 20 70 80 60\n","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"c:\\Users\\Eduar\\OneDrive\\Documentos\\GitHub\\C-pratice\\Lista8\\teste.cpp","group":"local","local":true}
