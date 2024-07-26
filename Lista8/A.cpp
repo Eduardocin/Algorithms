@@ -5,6 +5,7 @@
 using namespace std;
 
 int KnapsackBottomUp(int numItems, int backCapacity, vector<int>& values, vector<int>& weights, vector<vector<int>>& knapsackMatrix) {
+    
     for (int i = 0; i <= numItems; i++) {
         for (int j = 0; j <= backCapacity; j++) {
             if (i == 0 || j == 0) {

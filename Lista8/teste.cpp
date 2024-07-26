@@ -1,37 +1,49 @@
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <climits>
+#include <bits/stdc++.h>
 
 using namespace std;
 
-// Função para calcular o custo mínimo para o sapo chegar à pedra N
-int min_cost(int N, int K, const vector<int>& heights) {
-    vector<int> dp(N, INT_MAX);
-    dp[0] = 0;  // O custo para estar na primeira pedra é 0
+vector<vector<int>> bag;
 
-    for (int i = 1; i < N; ++i) {
-        for (int j = 1; j <= K; ++j) {
-            if (i - j >= 0) {
-                dp[i] = min(dp[i], dp[i-j] + abs(heights[i] - heights[i-j]));
+
+int SolveKnapsack(int numItens, int knapsackCapcity, vector<int>& w, vector<int> v, vector<vector<int>>& bag){
+
+    for(int i = 0; i <= numItens; i++){
+        for(int j = 0; j <= knapsackCapcity; j++){
+            if(i == 0 || j == 0){
+                bag[i][j] = 0;
+            }
+            else if(w[i] <= j){
+                int val1 = bag[i-1][j];
+                int val2 = v[i] + bag[i-1][j-w[i]];
+                bag[i][j] = max(val1, val2);
+            }
+            else{
+                bag[i][j] = bag[i-1][j];
             }
         }
     }
+    return bag[numItens][knapsackCapcity];
 
-    return dp[N-1];
 }
 
-int main() {
-    int N, K;
-    cin >> N >> K;
 
-    vector<int> heights(N);
-    for (int i = 0; i < N; ++i) {
-        cin >> heights[i];
+int main(){
+    int numItens, knapsackCapcity;
+    cin >> numItens >> knapsackCapcity;
+
+    vector<int> values(numItens + 1, 0), weights(numItens + 1 , 0);
+    bag.resize(numItens+1, vector<int>(knapsackCapcity+1, 0));
+
+
+    for(int i = 1; i <= numItens; i++){
+        cin >> weights[i] >> values[i];
     }
 
-    // Calcular o custo mínimo e imprimir o resultado
-    cout << min_cost(N, K, heights) << endl;
+    int maxValue = SolveKnapsack(numItens, knapsackCapcity, weights, values, bag);
+    cout << "Max Value: " << maxValue << endl;
+
+
+
 
     return 0;
 }

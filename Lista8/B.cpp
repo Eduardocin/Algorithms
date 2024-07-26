@@ -15,12 +15,13 @@ int min_cost(int jump, vector<int>& heights) {
     for (int i = 1; i < n; ++i) {
         for (int j = 1; j <= jump; ++j) {
             if (i - j >= 0) {
-                int val1 = solution[i - j] + abs(heights[i] - heights[i - j]);  // Custo para saltar 
-                int val2 = solution[i];  // Custo para andar
+                int val1 = solution[i - j] + abs(heights[i] - heights[i - j]);  // solução caso o sapo pule j peças
+                int val2 = solution[i];  // solução anterior caso o sapo não pule j peças
                 solution[i] = min(val1, val2);
             }
         }
     }
+
 
     return solution[n - 1];
 }
@@ -38,5 +39,6 @@ int main() {
     // Calcular o custo mínimo e imprimir o resultado
     cout << min_cost(jumpRange, heights) << endl;
 
+    
     return 0;
 }
