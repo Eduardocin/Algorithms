@@ -3,85 +3,72 @@
 
 using namespace std;
 
-vector<pair<int, int>> knightMoves = {
-    {2, 1}, {-2, 1}, {2, -1}, {-2, -1},
-    {1, 2}, {-1, 2}, {1, -2}, {-1, -2}
-};
+vector<pair<int, int>> moves = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+int numRows, numColumns, maxSpikesAvoid;
 
-bool isValid(int r, int c, const vector<vector<int>>& board) {
-    bool limitBoard = (r >= 0 && r < board.size()) && (c >= 0 && c < board[r].size());
-    bool validCell = limitBoard && board[r][c] == 1;
-    
-    return validCell;}
+bool isValid(int row, int col, int countSpikes, vector<vector<char>>& maze) {
+    if (row < 0 || row >= numRows || col < 0 || col >= numColumns) // Check bounds
+        return false;
+    if (maze[row][col] == '#') // Wall
+        return false;
+    if (maze[row][col] == 's' && countSpikes >= maxSpikesAvoid) // Spike limit exceeded
+        return false;
+    return true;
+}
 
-void KnighsBacktracking(int r, int c, vector<vector<int>>& board, int& currentCount, int& maxCount) {
-    
-    board[r][c] = 2;
-    currentCount++;
-    maxCount = max(maxCount, currentCount);
+bool exploreMaze(int row, int col, int& countSpikes, bool& foundTreasure, vector<vector<char>>& maze) {
+    // Goal 
+    if (maze[row][col] == 'x') {
+        foundTreasure = true;
+        return maxSpikesAvoid >= 2 * countSpikes;
+    }
 
-    // all possible knight moves
-    for (const auto& move : knightMoves) {
-        int newR = r + move.first;
-        int newC = c + move.second;
+    // explore and backtracking
+    char currentCell = maze[row][col];
+    if (currentCell == 's') {
+        countSpikes++;
+    }
+    maze[row][col] = '#';
 
-        if (isValid(newR, newC, board)) {
-            KnighsBacktracking(newR, newC, board, currentCount, maxCount);
+    for (auto move : moves) {
+        int newRow = row + move.first;
+        int newCol = col + move.second;
+        if (isValid(newRow, newCol, countSpikes, maze)) {
+            if (exploreMaze(newRow, newCol, countSpikes, foundTreasure, maze)) {
+                return true;
+            }
         }
     }
 
-    board[r][c] = 1;
-    currentCount--;
+    maze[row][col] = currentCell;
+    if (currentCell == 's') {
+        countSpikes--;
+    }
+
+    return false;
 }
 
-
-
 int main() {
-    int caseNumber = 1;
-    int numRows;
+    cin >> numRows >> numColumns >> maxSpikesAvoid;
+    vector<vector<char>> maze(numRows, vector<char>(numColumns));
+    
+    bool treasureFound = false;
+    int countSpikes = 0;
+    pair<int, int> start;
 
-    while (cin >> numRows && numRows != 0) {
-        vector<vector<int>> board(numRows);
-
-        int totalValid = 0;
-        int startPosition = -1;
-
-        // Initialize the board
-        for (int i = 0; i < numRows; i++) {
-            int offset, numSquares;
-            cin >> offset >> numSquares;
-
-            board[i].resize(offset + numSquares, 0);
-            totalValid += numSquares;
-
-            for (int j = offset; j < offset + numSquares; j++) {
-                board[i][j] = 1; 
-            }
-
-            if (i == 0) {
-                startPosition = offset;
+    for (int i = 0; i < numRows; i++) {
+        for (int j = 0; j < numColumns; j++) {
+            cin >> maze[i][j];
+            if (maze[i][j] == '@') {
+                start = make_pair(i, j);
             }
         }
+    }
 
-
-        //backtracking 
-        int maxCount = 0;
-        int currentCount = 0;
-        
-        KnighsBacktracking(0, startPosition, board, currentCount, maxCount);        
-
-
-
-        int unreachableCount = totalValid - maxCount;
-
-        cout << "Case " << caseNumber << ", " << unreachableCount;
-        if (unreachableCount == 1) {
-            cout << " square can not be reached." << endl;
-        } else {
-            cout << " squares can not be reached." << endl;
-        }
-
-        caseNumber++;
+    if (exploreMaze(start.first, start.second, countSpikes, treasureFound, maze)) {
+        cout << "SUCCESS" << endl;
+    } else {
+        cout << "IMPOSSIBLE" << endl;
     }
 
     return 0;
